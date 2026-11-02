@@ -1,0 +1,767 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#090a0f">
+<meta name="description" content="Agents4PLC 论文研究结果主线及对应方法分叉树">
+<title>Agents4PLC · Results & Method Branches</title>
+<style>
+:root {
+  color-scheme: dark;
+  --bg: #090a0f;
+  --panel: #141620;
+  --panel2: #171a26;
+  --border: rgba(255,255,255,.105);
+  --text: #f4f4f5;
+  --muted: #b5b7c3;
+  --soft: #888b9a;
+  --blue: #a5b4fc;
+  --violet: #c4b5fd;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse at 88% 0%, rgba(79,70,229,.12), transparent 34%),
+    radial-gradient(ellipse at 5% 55%, rgba(124,58,237,.07), transparent 32%),
+    var(--bg);
+  color: var(--text);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", "Microsoft YaHei", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+main {
+  width: min(1600px, calc(100% - 44px));
+  margin: 0 auto;
+  padding: 28px 0 46px;
+}
+.flow {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.flow-row {
+  display: grid;
+  grid-template-columns: minmax(330px, .78fr) minmax(0, 1.22fr);
+  gap: 34px;
+  align-items: stretch;
+}
+.result-side {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+}
+.result-card {
+  position: relative;
+  width: 100%;
+  padding: 23px 24px 25px;
+  border: 1px solid rgba(165,180,252,.19);
+  border-radius: 16px;
+  background: linear-gradient(145deg, rgba(24,26,39,.97), rgba(16,18,27,.98));
+  box-shadow: 0 15px 40px rgba(0,0,0,.22);
+}
+.result-card::after {
+  content: "";
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  top: -90px;
+  right: -70px;
+  border-radius: 50%;
+  background: rgba(99,102,241,.11);
+  filter: blur(34px);
+  pointer-events: none;
+}
+.number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 38px;
+  height: 31px;
+  padding: 0 10px;
+  border: 1px solid rgba(165,180,252,.34);
+  border-radius: 7px;
+  background: rgba(129,140,248,.10);
+  color: #c7d2fe;
+  font: 12px ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: .12em;
+}
+.result-card h2 {
+  position: relative;
+  margin: 16px 0 10px;
+  color: var(--text);
+  font-size: 23px;
+  line-height: 1.5;
+  font-weight: 700;
+  letter-spacing: -.025em;
+}
+.result-card p {
+  position: relative;
+  margin: 0;
+  color: #b9bbc7;
+  font-size: 15px;
+  line-height: 1.85;
+}
+.tree-side {
+  position: relative;
+  min-width: 0;
+  padding: 0 0 4px 25px;
+  border-left: 1px solid rgba(165,180,252,.30);
+}
+.tree-side::before {
+  content: "";
+  position: absolute;
+  top: 19px;
+  left: -1px;
+  width: 20px;
+  height: 1px;
+  background: rgba(165,180,252,.58);
+}
+.tree-root {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 39px;
+  margin: 0 0 11px;
+}
+.root-node {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 12px;
+  border: 1px solid rgba(196,181,253,.26);
+  border-radius: 8px;
+  background: rgba(139,92,246,.10);
+  color: #ddd6fe;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  white-space: nowrap;
+}
+.root-line {
+  height: 1px;
+  flex: 1;
+  background: linear-gradient(90deg, rgba(196,181,253,.48), transparent);
+}
+.tree-branches {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0,1fr));
+  column-gap: 19px;
+  row-gap: 11px;
+  margin-left: 13px;
+  padding: 2px 0 3px 22px;
+  border-left: 1px solid rgba(196,181,253,.30);
+}
+.branch-group {
+  position: relative;
+  min-width: 0;
+  padding: 10px 12px 11px 14px;
+  border: 1px solid rgba(255,255,255,.075);
+  border-radius: 11px;
+  background: linear-gradient(135deg, rgba(25,27,39,.90), rgba(17,19,28,.88));
+}
+.branch-group::before {
+  content: "";
+  position: absolute;
+  top: 20px;
+  left: -23px;
+  width: 22px;
+  height: 1px;
+  background: rgba(196,181,253,.48);
+}
+.branch-label {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 22px;
+  color: #e4e4f0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.branch-dot {
+  position: absolute;
+  left: -27px;
+  top: 16px;
+  width: 8px;
+  height: 8px;
+  border: 2px solid #c4b5fd;
+  border-radius: 50%;
+  background: #11121a;
+  box-shadow: 0 0 10px rgba(196,181,253,.25);
+}
+.branch-group ul {
+  position: relative;
+  margin: 9px 0 0 4px;
+  padding: 0 0 0 15px;
+  border-left: 1px dashed rgba(165,180,252,.23);
+  list-style: none;
+}
+.branch-group li {
+  position: relative;
+  margin: 0 0 7px;
+  color: #b5b7c3;
+  font-size: 13px;
+  line-height: 1.72;
+}
+.branch-group li:last-child { margin-bottom: 0; }
+.branch-group li::before {
+  content: "";
+  position: absolute;
+  top: 10px;
+  left: -16px;
+  width: 8px;
+  height: 1px;
+  background: rgba(165,180,252,.50);
+}
+.main-flow-arrow {
+  display: grid;
+  grid-template-columns: minmax(330px, .78fr) minmax(0, 1.22fr);
+  gap: 34px;
+  height: 49px;
+}
+.main-flow-arrow span {
+  justify-self: center;
+  position: relative;
+  width: 1px;
+  height: 100%;
+  background: linear-gradient(to bottom, rgba(129,140,248,.10), rgba(165,180,252,.75), rgba(129,140,248,.10));
+}
+.main-flow-arrow b {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%,-50%);
+  display: grid;
+  place-items: center;
+  width: 25px;
+  height: 25px;
+  border: 1px solid rgba(165,180,252,.34);
+  border-radius: 50%;
+  background: #10111a;
+  color: #c7d2fe;
+  font-size: 15px;
+  font-weight: 500;
+}
+@media (max-width: 1050px) {
+  main { width: min(900px, calc(100% - 32px)); }
+  .flow-row, .main-flow-arrow { grid-template-columns: minmax(250px,.72fr) minmax(0,1.28fr); gap: 23px; }
+  .tree-branches { grid-template-columns: 1fr; }
+  .result-card h2 { font-size: 20px; }
+  .branch-group li { font-size: 12px; }
+}
+@media (max-width: 760px) {
+  main { width: calc(100% - 28px); padding: 17px 0 30px; }
+  .flow-row { grid-template-columns: 1fr; gap: 13px; }
+  .result-card { padding: 19px 18px 20px; }
+  .result-card h2 { font-size: 20px; margin-top: 13px; }
+  .result-card p { font-size: 14px; }
+  .tree-side {
+    margin-left: 10px;
+    padding-left: 20px;
+  }
+  .tree-branches { grid-template-columns: 1fr; }
+  .branch-group li { font-size: 13px; }
+  .main-flow-arrow {
+    grid-template-columns: 1fr;
+    height: 38px;
+  }
+  .main-flow-arrow span { justify-self: start; margin-left: 28px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
+}
+</style>
+</head>
+<body>
+<main>
+  <div class="flow" aria-label="Agents4PLC 研究结果主线及方法分叉树">
+
+      <section class="flow-row" aria-label="研究模块 01">
+        <div class="result-side">
+          <article class="result-card">
+            <span class="number">01</span>
+            <h2>建立 PLC 代码生成基准与专业知识库</h2>
+            <p>构建可评估、可检索的领域数据基础，为后续代码生成与验证提供统一依据。</p>
+          </article>
+        </div>
+        <div class="tree-side">
+          <div class="tree-root"><span class="root-node">方法分叉</span><span class="root-line"></span></div>
+          <div class="tree-branches">
+            
+          <div class="branch-group">
+            <div class="branch-label"><span class="branch-dot"></span><strong>RAG 专业案例库构建</strong></div>
+            <ul><li>从 OSCAT 自动化库收集 510 个真实 ST 案例。</li><li>通过 MATIEC 编译筛选，并结合 LLM 辅助预处理与人工选择。</li><li>筛选得到 201 个包含计划且语法正确的 ST 程序，作为 RAG 语料。</li><li>案例按 SHA-256 功能索引、带 I/O 映射的控制流计划、ST 代码片段组织；代码经 RuSTy 语法验证。</li><li>整合 456 页领域资料与经典 ST 代码数据，支持检索。</li></ul>
+          </div>
+        
+          <div class="branch-group">
+            <div class="branch-label"><span class="branch-dot"></span><strong>标准基准任务集</strong></div>
+            <ul><li>构建 168 个标准化 PLC 编程任务，并配套 604 个人工验证属性。</li><li>任务来源：PLC 教科书、整理后的开源示例、ST 编程竞赛，以及基于真实需求优化的 GPT-4 案例。</li><li>每项任务包含自然语言 instruction、经验证的 ST ground truth，以及人工编写的 CTL 验证属性。</li><li>由 25 名 PLC 工程师进行难度评分；最终划分为 30 个简单任务、81 个中等任务和 4 个困难任务，中等与困难合并为 85 个高级任务。</li></ul>
+          </div>
+        
+          <div class="branch-group">
+            <div class="branch-label"><span class="branch-dot"></span><strong>高保真任务集</strong></div>
+            <ul><li>另构建 21 个高复杂度任务，来源于工业编程竞赛。</li><li>为任务补充形式化属性，形成可验证的高保真评测集。</li><li>该数据集用于 RQ2 效率与可靠性分析，并尽量降低公开大模型训练数据污染风险。</li></ul>
+          </div>
+        
+          </div>
+        </div>
+      </section>
+    
+<div class="main-flow-arrow" aria-hidden="true"><span></span><b>↓</b></div>
+
+      <section class="flow-row" aria-label="研究模块 02">
+        <div class="result-side">
+          <article class="result-card">
+            <span class="number">02</span>
+            <h2>形成五智能体协同的闭环代码生成框架</h2>
+            <p>将自然语言需求拆解为可执行计划，再完成代码生成、验证与迭代修复。</p>
+          </article>
+        </div>
+        <div class="tree-side">
+          <div class="tree-root"><span class="root-node">方法分叉</span><span class="root-line"></span></div>
+          <div class="tree-branches">
+            
+          <div class="branch-group">
+            <div class="branch-label"><span class="branch-dot"></span><strong>AgentR｜检索代理</strong></div>
+            <ul><li>建立本地 PLC 领域知识库，存储书籍、标准文档、历史计划与 ST 案例。</li><li>第一阶段：使用 text-embedding-ada-002 进行向量匹配，召回 Top-3 候选案例。</li><li>第二阶段：LLM 从控制逻辑、任务类别和底层算法三个维度评分并重排序。</li><li>将候选案例整理为问题描述、规划蓝图和代码文档，结构化传递给 AgentP；可选调用网络搜索补充案例。</li></ul>
+          </div>
+        
+          <div class="branch-group">
+            <div class="branch-label"><span class="branch-dot"></span><strong>AgentP｜规划代理</strong></div>
+            <ul><li>分析自然语言需求，提炼总体功能目标并拆分为 POU。</li><li>为各 POU 明确输入/输出变量、功能边界及变量映射。</li><li>将实现逻辑组织为步骤式流程或状态机逻辑。</li><li>生成多个候选计划，并按目标达成度、效率和安全性进行 LLM 评分排序；按优先级依次交给 AgentC。</li></ul>
+          </div>
+        
+          <div class="branch-group">
+            <div class="branch-label"><span class="branch-dot"></span><strong>AgentC｜编码代理</strong></div>
+            <ul><li>利用 AgentR 检索到的案例，为代码生成提供领域知识、可复用逻辑和语法参考。</li><li>采用 CoT 分解生成步骤：确定 POU 顺序、变量声明作用域，再逐步映射执行逻辑。</li><li>使用 one-shot 模板约束 IEC 61131-3 代码结构，明确 PROGRAM / FUNCTION_BLOCK 等 POU 组织及输入输出分离。</li><li>加入语法感知约束：变量先声明后使用、禁止嵌套 POU 定义、硬件地址映射仅保留在注释中。</li></ul>
+          </div>
+        
+          <div class="branch-group">
+            <div class="branch-label"><span class="branch-dot"></span><strong>AgentV｜验证代理</strong></div>
+            <ul><li>编译检查：先调用 ST 编译器检查语法；失败时将诊断信息传给 AgentD。</li><li>属性生成：从用户需求提取原子命题，选择时序逻辑模式，将命题映射到提升的 CTL 模板并组合成形式属性。</li><li>形式验证：借助 PLCverif 等工具将 ST 转换为验证格式，再调用 SMV / CBMC 等后端进行属性检查。</li><li>通过确定性的输入/输出处理与扫描周期模拟验证代码功能；输出验证通过结果或反例。</li></ul>
+          </div>
+        
+          <div class="branch-group">
+            <div class="branch-label"><span class="branch-dot"></span><strong>AgentD｜调试代理</strong></div>
+            <ul><li>编译错误修复：定位并分类语法、类型不兼容、未定义符号、常量溢出等错误。</li><li>根因分析：结合编译器诊断与代码上下文，推断错误来源。</li><li>模板化补丁：将错误映射到符合 IEC 61131-3 的修复模板，生成结构化统一差异补丁。</li><li>语义错误修复：结合 CoT 分析被违反的属性与模型检查反例，定位逻辑缺陷并生成补丁。</li><li>将修复代码重新交给 AgentV 验证；若仍失败则继续迭代，超过循环限制后尝试下一候选计划。</li></ul>
+          </div>
+        
+          </div>
+        </div>
+      </section>
+    
+<div class="main-flow-arrow" aria-hidden="true"><span></span><b>↓</b></div>
+
+      <section class="flow-row" aria-label="研究模块 03">
+        <div class="result-side">
+          <article class="result-card">
+            <span class="number">03</span>
+            <h2>多模型对比实验显示代码正确性提升</h2>
+            <p>在简单任务与高级任务上，Agents4PLC 相较直接使用基础模型获得更高的最终验证通过率。</p>
+          </article>
+        </div>
+        <div class="tree-side">
+          <div class="tree-root"><span class="root-node">方法分叉</span><span class="root-line"></span></div>
+          <div class="tree-branches">
+            
+          <div class="branch-group">
+            <div class="branch-label"><span class="branch-dot"></span><strong>评测任务与模型设置</strong></div>
+            <ul><li>使用 30 个简单任务和 85 个高级任务开展主要对比实验。</li><li>基础模型包括 GPT-4o、GPT-4o-mini、DeepSeek-V3、Claude 3.5 Sonnet、Qwen2.5-Max 和 GLM-4-Plus。</li><li>不同方法尽可能使用相同模型后端；通用多智能体及 RAG 基线主要采用 GPT-4o 评估。</li></ul>
+          </div>
+        
+          <div class="branch-group">
+            <div class="branch-label"><span class="branch-dot"></span><strong>对比基线</strong></div>
+            <ul><li>纯 LLM 直接生成：作为基础模型基线。</li><li>LLM4PLC：微调模型结合外部验证工具的 PLC 代码生成管线。</li><li>RAG 增强生成：将检索到的 PLC 案例作为上下文。</li><li>通用多智能体框架 ChatDev：比较多角色协作生成代码的效果。</li><li>同时参考 Koziolek 等人的 GPT-4o + RAG 配置。</li></ul>
+          </div>
+        
+          <div class="branch-group">
+            <div class="branch-label"><span class="branch-dot"></span><strong>评价指标</strong></div>
+            <ul><li>SSR｜语法成功率：生成代码中能够无错误编译的比例。</li><li>VR｜可验证率：已编译代码中，能够转换为形式化验证语言并至少验证 80% 属性的比例。</li><li>PR｜通过率：全部生成代码中，能够编译且通过至少 80% 形式化属性验证的比例。</li></ul>
+          </div>
+        
+          </div>
+        </div>
+      </section>
+    
+<div class="main-flow-arrow" aria-hidden="true"><span></span><b>↓</b></div>
+
+      <section class="flow-row" aria-label="研究模块 04">
+        <div class="result-side">
+          <article class="result-card">
+            <span class="number">04</span>
+            <h2>前置规划提高首轮正确性，并减少修复轮次</h2>
+            <p>检索与规划将更多计算前置，降低对反复调试的依赖；但单轮开销和总耗时并未同步下降。</p>
+          </article>
+        </div>
+        <div class="tree-side">
+          <div class="tree-root"><span class="root-node">方法分叉</span><span class="root-line"></span></div>
+          <div class="tree-branches">
+            
+          <div class="branch-group">
+            <div class="branch-label"><span class="branch-dot"></span><strong>实验数据与迭代设置</strong></div>
+            <ul><li>效率分析覆盖标准数据集中的 115 个案例，并重点使用 21 个高保真复杂任务。</li><li>设置最多 5 轮迭代优化，记录每轮生成、验证和修复表现。</li><li>通过不同轮次的 SSR、PR 变化，分析首次生成能力与后续迭代收益。</li></ul>
+          </div>
+        
+          <div class="branch-group">
+            <div class="branch-label"><span class="branch-dot"></span><strong>首轮正确性与迭代轨迹</strong></div>
+            <ul><li>比较 Agents4PLC、LLM4PLC 与直接 GPT-4o 的首轮生成表现。</li><li>重点考察高级任务首轮准确率，判断检索增强规划和前置验证能否减少后续修复。</li><li>观察第 1—5 轮 SSR、PR 的变化，区分局部补丁修复与重新规划带来的改进。</li></ul>
+          </div>
+        
+          <div class="branch-group">
+            <div class="branch-label"><span class="branch-dot"></span><strong>计算成本与效率</strong></div>
+            <ul><li>统计平均优化轮数、每轮平均 Token、总 Token 消耗。</li><li>统计每轮平均耗时与总耗时，比较前置检索/规划带来的单轮开销。</li><li>对比直接 GPT-4o、LLM4PLC 和 Agents4PLC 的成本—可靠性权衡。</li></ul>
+          </div>
+        
+          </div>
+        </div>
+      </section>
+    
+<div class="main-flow-arrow" aria-hidden="true"><span></span><b>↓</b></div>
+
+      <section class="flow-row" aria-label="研究模块 05">
+        <div class="result-side">
+          <article class="result-card">
+            <span class="number">05</span>
+            <h2>消融实验揭示关键模块贡献与性能权衡</h2>
+            <p>语法约束、RAG 示例与结构化补丁共同影响代码质量；检索上下文也可能在部分高级任务中引入噪声。</p>
+          </article>
+        </div>
+        <div class="tree-side">
+          <div class="tree-root"><span class="root-node">方法分叉</span><span class="root-line"></span></div>
+          <div class="tree-branches">
+            
+          <div class="branch-group">
+            <div class="branch-label"><span class="branch-dot"></span><strong>检索与规划模块消融</strong></div>
+            <ul><li>移除检索：关闭 AgentR 的检索增强，观察案例上下文对生成质量的影响。</li><li>移除检索与规划：同时移除检索和规划支撑，评估 AgentR、AgentP 的联合贡献。</li></ul>
+          </div>
+        
+          <div class="branch-group">
+            <div class="branch-label"><span class="branch-dot"></span><strong>编码代理 AgentC 消融</strong></div>
+            <ul><li>One-shot + 语法提示：保留模板和语法约束，移除 RAG 示例。</li><li>One-shot + RAG：保留模板和检索示例，移除语法提示。</li><li>One-shot：仅保留一次性模板。</li><li>Zero-shot：不提供示例模板，观察无示例生成效果。</li></ul>
+          </div>
+        
+          <div class="branch-group">
+            <div class="branch-label"><span class="branch-dot"></span><strong>调试代理 AgentD 消融</strong></div>
+            <ul><li>直接修复：让模型直接改写代码，不使用结构化统一差异补丁。</li><li>基本模板：移除 CoT 指令和专门修复模板，仅提供基础语法指导。</li></ul>
+          </div>
+        
+          <div class="branch-group">
+            <div class="branch-label"><span class="branch-dot"></span><strong>验证—调试循环消融</strong></div>
+            <ul><li>移除循环：只执行单轮代码生成与验证，不进行验证反馈后的迭代修复。</li><li>所有消融配置保持相同任务集、评价指标与验证标准，以比较模块贡献。</li></ul>
+          </div>
+        
+          <div class="branch-group">
+            <div class="branch-label"><span class="branch-dot"></span><strong>统一评价方式</strong></div>
+            <ul><li>在 30 个简单任务和 85 个高级任务上分别统计 SSR、VR 与 PR。</li><li>比较语法可编译性、形式属性可验证性和最终通过率，识别各模块对不同复杂度任务的作用。</li></ul>
+          </div>
+        
+          </div>
+        </div>
+      </section>
+    
+  </div>
+</main>
+
+<style>
+.term-trigger {
+  display: inline;
+  padding: 0 1px;
+  border: 0;
+  border-bottom: 1px dashed rgba(165,180,252,.82);
+  border-radius: 2px;
+  background: rgba(129,140,248,.075);
+  color: #d8ddff;
+  font: inherit;
+  line-height: inherit;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background .16s ease, color .16s ease, border-color .16s ease;
+}
+.term-trigger:hover, .term-trigger:focus-visible {
+  outline: none;
+  color: #fff;
+  background: rgba(129,140,248,.20);
+  border-bottom-color: #c4b5fd;
+}
+.term-trigger[aria-expanded="true"] {
+  color: #fff;
+  background: rgba(139,92,246,.24);
+  border-bottom: 1px solid #c4b5fd;
+}
+.glossary-hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  margin: 0 0 18px 2px;
+  color: #9699aa;
+  font-size: 12px;
+  letter-spacing: .02em;
+}
+.glossary-hint .hint-mark {
+  width: 19px;
+  height: 10px;
+  border-bottom: 1px dashed #a5b4fc;
+  background: rgba(129,140,248,.08);
+}
+.term-card {
+  position: fixed;
+  z-index: 99999;
+  width: min(370px, calc(100vw - 24px));
+  max-height: min(430px, calc(100vh - 24px));
+  overflow: auto;
+  padding: 17px 18px 18px;
+  border: 1px solid rgba(196,181,253,.32);
+  border-radius: 14px;
+  background: linear-gradient(145deg, rgba(25,27,40,.985), rgba(13,15,24,.99));
+  box-shadow: 0 22px 70px rgba(0,0,0,.58), 0 0 0 1px rgba(255,255,255,.025) inset;
+  color: #f4f4f5;
+  backdrop-filter: blur(18px);
+  animation: term-card-in .14s ease-out;
+}
+@keyframes term-card-in {
+  from { opacity: 0; transform: translateY(5px) scale(.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.term-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 9px;
+}
+.term-card-title {
+  margin: 0;
+  color: #f4f4f5;
+  font-size: 17px;
+  font-weight: 750;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+.term-card-full {
+  margin-top: 4px;
+  color: #a5b4fc;
+  font-size: 11px;
+  line-height: 1.5;
+}
+.term-card-close {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 27px;
+  height: 27px;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 7px;
+  background: rgba(255,255,255,.045);
+  color: #c8cad4;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+.term-card-close:hover { background: rgba(255,255,255,.11); color: white; }
+.term-card-category {
+  display: inline-flex;
+  padding: 4px 8px;
+  margin: 0 0 11px;
+  border: 1px solid rgba(165,180,252,.20);
+  border-radius: 6px;
+  background: rgba(129,140,248,.09);
+  color: #c7d2fe;
+  font-size: 11px;
+  line-height: 1.3;
+}
+.term-card-section-title {
+  margin: 11px 0 5px;
+  color: #e5e7eb;
+  font-size: 12px;
+  font-weight: 700;
+}
+.term-card-body {
+  margin: 0;
+  color: #c0c2ce;
+  font-size: 13px;
+  line-height: 1.75;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 520px) {
+  .term-card {
+    width: calc(100vw - 24px);
+    left: 12px !important;
+    right: 12px;
+    max-height: min(48vh, 390px);
+  }
+}
+</style>
+<script>
+(() => {
+  const glossary = {"PLC": {"full": "Programmable Logic Controller", "category": "工业控制", "definition": "可编程逻辑控制器，是用于工业自动化控制的专用控制设备。它读取现场输入信号，按照预设控制程序执行逻辑运算，再更新输出信号。", "context": "本文研究的核心对象。Agents4PLC 的目标是根据自然语言需求自动生成 PLC 程序，并对生成代码进行编译检查和功能验证。"}, "ST": {"full": "Structured Text", "category": "PLC 编程语言", "definition": "结构化文本，是 IEC 61131-3 标准规定的 PLC 文本编程语言之一，语法风格接近 Pascal 等高级语言，支持变量、条件判断、循环和函数块调用。", "context": "论文聚焦 ST 代码生成。框架生成 ST 程序，并直接对 ST 代码进行编译与形式化验证。"}, "IEC 61131-3": {"full": "International Electrotechnical Commission 61131-3", "category": "国际标准", "definition": "国际电工委员会发布的 PLC 编程语言标准，规定了 PLC 编程语言及程序组织方式。论文重点涉及结构化文本 ST 和程序组织单元 POU。", "context": "AgentC 使用该标准约束代码结构，例如变量声明、程序组织单元定义及输入输出接口组织。"}, "LLM": {"full": "Large Language Model", "category": "人工智能", "definition": "大语言模型，通过大规模文本或代码数据训练，能够理解指令、生成内容并进行一定程度的推理。", "context": "Agents4PLC 以 LLM 作为各专业代理的推理与生成核心，分别承担检索重排、计划生成、代码编写、属性生成和补丁修复等任务。"}, "RAG": {"full": "Retrieval-Augmented Generation", "category": "知识增强生成", "definition": "检索增强生成。模型生成答案前，先从外部知识库检索相关资料，再将检索结果作为上下文辅助生成，以减少凭空编造并补充领域知识。", "context": "论文在规划阶段和编码阶段使用 RAG：先检索 PLC 案例，再把结构化案例、计划蓝图和 ST 代码参考提供给 AgentP 与 AgentC。"}, "POU": {"full": "Program Organization Unit", "category": "PLC 程序结构", "definition": "程序组织单元，是 IEC 61131-3 中组织 PLC 程序的基本构建单元，主要包括程序（PROGRAM）、功能块（FUNCTION_BLOCK）和函数（FUNCTION）。", "context": "AgentP 将用户需求拆分为一个或多个 POU，并为每个 POU 规划输入输出变量、状态逻辑和实现步骤。"}, "I/O": {"full": "Input / Output", "category": "控制系统接口", "definition": "输入与输出。输入通常指传感器、按钮或其他设备传来的信号；输出通常指 PLC 发给执行器、指示灯或其他设备的控制信号。", "context": "论文的案例计划会标注 POU 的输入/输出变量映射，以明确各功能模块如何接收数据和输出控制结果。"}, "SHA-256": {"full": "Secure Hash Algorithm 256-bit", "category": "数据索引", "definition": "一种生成 256 位摘要值的密码学哈希算法。相同输入通常得到相同摘要，可用于构造稳定的数据标识或索引。", "context": "论文用功能签名的 SHA-256 哈希作为案例索引，便于识别和组织 PLC 编程案例。"}, "OSCAT": {"full": "Open Source Community for Automation Technology", "category": "自动化资源库", "definition": "开放自动化技术社区及其相关自动化资源。论文从 OSCAT 自动化库收集真实 ST 程序案例。", "context": "作者最初收集 510 个带文档的 ST 案例，再经过编译筛选、LLM 辅助预处理和人工选择，形成 RAG 案例库。"}, "MATIEC": {"full": "MATIEC Open-Source IEC 61131-3 Compiler", "category": "编译工具", "definition": "面向 IEC 61131-3 PLC 语言的开源编译器项目，可用于处理和编译 PLC 结构化文本等代码。", "context": "论文将 MATIEC 用于初步筛选收集到的 ST 案例，排除无法通过编译检查的程序。"}, "RuSTy": {"full": "RuSTy ST Compiler", "category": "编译工具", "definition": "论文采用的开源 ST 编译器项目，基于 LLVM 与 Rust 技术构建，用于检查结构化文本代码的语法有效性。", "context": "筛选后的案例代码经过 RuSTy 语法验证；框架也使用编译器反馈帮助识别生成代码中的语法问题。"}, "AgentR": {"full": "Retrieval Agent", "category": "检索代理", "definition": "检索代理，负责从 PLC 领域知识库和案例库中寻找与当前需求相关的参考案例。", "context": "先进行向量相似度检索，再由 LLM 按控制逻辑、任务类别和底层算法进行重排序，最后整理成结构化参考资料。"}, "AgentP": {"full": "Planning Agent", "category": "规划代理", "definition": "规划代理，负责理解用户需求、拆分任务并制定可执行的 PLC 代码实现计划。", "context": "它将总体功能拆分为 POU，明确变量输入输出和状态逻辑；若生成多个计划，则按目标达成度、效率和安全性排序。"}, "AgentC": {"full": "Coding Agent", "category": "编码代理", "definition": "编码代理，负责依据规划结果生成 PLC 结构化文本代码。", "context": "它结合 RAG 案例、思维链分解、one-shot 模板和语法约束，生成符合 IEC 61131-3 组织规范的 ST 代码。"}, "AgentV": {"full": "Verification Agent", "category": "验证代理", "definition": "验证代理，负责检查生成代码是否能够编译，以及代码逻辑是否满足形式化属性。", "context": "它执行编译检查、属性生成和形式验证；验证失败时输出编译诊断或反例，交由 AgentD 修复。"}, "AgentD": {"full": "Debugging Agent", "category": "调试代理", "definition": "调试代理，负责分析编译器或形式验证器返回的错误信息，并生成针对性的代码修复补丁。", "context": "它先定位错误并分析根因，再使用模板生成结构化补丁；修复后的代码会重新交给 AgentV 验证。"}, "text-embedding-ada-002": {"full": "Text Embedding Ada 002", "category": "文本向量模型", "definition": "一种文本嵌入模型，可将文本转换为向量表示，以便计算不同文本之间的语义相似度。", "context": "论文中的 AgentR 使用它对用户需求和案例文本进行向量匹配，并召回排名靠前的候选案例。"}, "CoT": {"full": "Chain of Thought", "category": "提示与推理方法", "definition": "思维链提示方法，通过要求模型分步骤分析任务，帮助其把复杂目标拆成一系列相对明确的中间步骤。", "context": "AgentC 用它分解代码生成步骤；AgentD 用它分析验证反例、定位语义错误并形成修复建议。"}, "CTL": {"full": "Computation Tree Logic", "category": "形式化验证", "definition": "计算树逻辑，一种描述系统状态及其分支执行路径上时序性质的形式化逻辑，可用于表达安全性、可达性等属性。", "context": "论文将需求转换为 CTL 属性，并交给模型检验工具检查生成的 ST 程序是否满足这些性质。"}, "LTL": {"full": "Linear Temporal Logic", "category": "形式化验证", "definition": "线性时序逻辑，用于描述沿执行序列随时间成立的性质，例如某个条件始终成立，或某事件最终会发生。", "context": "论文的属性生成流程涉及 CTL/LTL 形式化公式，用来把自然语言需求转成可检查的逻辑约束。"}, "SMV": {"full": "Symbolic Model Verifier / SMV model-checking format", "category": "模型检验", "definition": "SMV 通常指符号模型检验工具及其模型描述语言，用于建立有限状态系统模型并检查时序逻辑性质。", "context": "论文将 SMV 列为形式验证后端之一，并强调通过专用工具转换 ST 代码，避免依赖 LLM 不可靠地直接生成验证模型。"}, "CBMC": {"full": "C Bounded Model Checker", "category": "形式化验证工具", "definition": "有界模型检验工具，通过在给定边界内分析程序执行路径，检查断言、数组边界、指针及其他性质是否可能被违反。", "context": "论文将 CBMC 列为可用于验证生成代码属性的后端工具之一。"}, "PLCverif": {"full": "PLC Verification Tool", "category": "PLC 验证工具", "definition": "面向 PLC 程序的形式化验证工具，可将 PLC 程序转换为适合验证的表示形式，并检查指定性质。", "context": "论文使用 PLCverif 等专用工具完成 ST 到验证格式的转换，再由后端模型检验器执行属性检查。"}, "SSR": {"full": "Syntax Success Rate", "category": "评价指标", "definition": "语法成功率，指生成代码中能够无错误通过编译的比例。", "context": "它衡量代码是否符合语言语法、能否编译执行，是论文评价代码生成质量的第一项指标。"}, "VR": {"full": "Verifiability Rate", "category": "评价指标", "definition": "可验证率，指已编译代码中，能够转换为形式化验证语言并至少完成 80% 属性验证的比例。", "context": "它衡量生成代码是否能够进入形式化验证流程，而不只是语法正确。"}, "PR": {"full": "Pass Rate", "category": "评价指标", "definition": "通过率，指全部生成代码中，既能成功编译、又能通过至少 80% 形式化属性验证的比例。", "context": "这是论文中更严格的综合指标，同时考察语法正确性和功能属性是否满足。"}, "LLM4PLC": {"full": "LLM-based PLC Code Generation Framework", "category": "对比基线", "definition": "论文比较的一种基于大语言模型的 PLC 代码生成管线，将微调模型与外部验证工具结合。", "context": "Agents4PLC 与 LLM4PLC 对比时，一个重要区别是前者直接对生成的 ST 代码开展代码级验证，并通过多代理闭环修复。"}, "ChatDev": {"full": "Multi-Agent Software Development Framework", "category": "对比基线", "definition": "一种多智能体软件开发框架，通过不同角色的智能体协作完成软件开发任务。", "context": "论文将其作为通用多智能体代码生成基线，比较通用协作框架与面向 PLC 领域的专用代理系统之间的差异。"}, "GPT-4o-mini": {"full": "GPT-4o mini", "category": "基础模型", "definition": "OpenAI 的轻量级多模态大语言模型系列型号。", "context": "论文将它作为 Agents4PLC 的一种底层模型配置，用于比较不同基础模型对框架性能的影响。"}, "GPT-4o": {"full": "GPT-4o", "category": "基础模型", "definition": "OpenAI 的多模态大语言模型型号。", "context": "论文使用它作为多种对比方法的基础模型之一，并报告其在不同任务难度下的语法和验证表现。"}, "DeepSeek-V3": {"full": "DeepSeek V3", "category": "基础模型", "definition": "DeepSeek 发布的大语言模型。", "context": "论文将它作为基础模型之一；在高级任务组中，Agents4PLC 配合该模型取得了较高的语法成功率和通过率。"}, "Claude 3.5 Sonnet": {"full": "Claude 3.5 Sonnet", "category": "基础模型", "definition": "Anthropic 的 Claude 系列模型中的一个型号。", "context": "论文将它作为基础模型之一，用于比较 Agents4PLC 在不同模型后端下的表现。"}, "Qwen2.5-Max": {"full": "Qwen 2.5 Max", "category": "基础模型", "definition": "通义千问 Qwen 系列的大语言模型型号。", "context": "论文将它作为基础模型之一，用于评估多智能体框架对不同模型后端的适配能力。"}, "GLM-4-Plus": {"full": "GLM-4-Plus", "category": "基础模型", "definition": "智谱 GLM 系列的大语言模型型号。", "context": "论文将它作为基础模型之一，参与不同模型配置下的代码生成与验证对比。"}, "JSON": {"full": "JavaScript Object Notation", "category": "数据格式", "definition": "一种轻量级结构化数据交换格式，使用键值对、数组、字符串和数值等表达信息。", "context": "论文将结构化属性与检索结果组织为机器可处理的数据，再转换为形式化验证所需的逻辑公式。"}, "PROGRAM": {"full": "Program POU", "category": "PLC 程序结构", "definition": "IEC 61131-3 中的一种程序组织单元，用于组织 PLC 程序的执行逻辑。", "context": "论文把 PROGRAM 作为符合 IEC 61131-3 的 POU 结构示例，用于约束 AgentC 生成代码的组织形式。"}, "FUNCTION_BLOCK": {"full": "Function Block", "category": "PLC 程序结构", "definition": "功能块，是 IEC 61131-3 中的一类 POU。它可以封装内部状态、变量和控制逻辑，并通过定义好的接口被重复调用。", "context": "论文的仓库管理示例使用 FUNCTION_BLOCK 封装库存计数、存储、取出和错误处理逻辑。"}, "one-shot": {"full": "One-shot prompting", "category": "提示策略", "definition": "单样例提示，即在任务指令中提供一个示例，让模型参考示例的结构和风格完成新任务。", "context": "AgentC 使用 one-shot 模板展示符合 IEC 61131-3 的代码组织形式，减少模型生成不规范 PLC 代码的概率。"}, "Zero-shot": {"full": "Zero-shot prompting", "category": "提示策略", "definition": "零样例提示，不提供任务示例，直接要求模型根据指令和已有知识完成任务。", "context": "论文在 AgentC 消融实验中设置 Zero-shot 配置，用于观察移除示例模板后的代码质量变化。"}, "Top-3": {"full": "Top 3 retrieval results", "category": "检索策略", "definition": "检索排名前三的候选结果，通常按照向量相似度或相关性分数排序。", "context": "AgentR 的第一阶段向量检索默认召回前三个案例，随后再由 LLM 对候选案例进行分析和重排序。"}, "Token": {"full": "Token", "category": "大模型计算单位", "definition": "模型处理文本时使用的基本切分单位。一个 token 可能是一个汉字、一个词的一部分、标点或其他文本片段，并不等同于一个完整单词。", "context": "论文用 Token 数统计各方法的推理与生成成本，比较检索规划带来的额外开销和迭代轮次减少的收益。"}, "RQ2": {"full": "Research Question 2", "category": "研究问题编号", "definition": "第二个研究问题（Research Question 2）。论文用 RQ1、RQ2、RQ3 组织实验评估。", "context": "RQ2 关注多智能体框架在高难度 PLC 代码生成中的效率、可靠性和计算成本。"}, "Embedding": {"full": "Text Embedding", "category": "检索技术", "definition": "文本嵌入技术，将文本映射为数值向量，使语义相近的文本在向量空间中更接近。", "context": "AgentR 通过文本嵌入向量进行候选案例召回，再结合 LLM 进行二次相关性排序。"}, "ground_truth": {"full": "Ground-truth implementation", "category": "数据集字段", "definition": "真实参考实现或标准答案。在代码生成基准中，通常指经过人工检查或验证的目标代码。", "context": "论文的任务数据结构包含经验证的 ST 参考代码，作为评估生成代码正确性的依据。"}, "instruction": {"full": "Natural-language instruction", "category": "数据集字段", "definition": "自然语言任务指令，用文字描述 PLC 程序需要实现的功能、约束和预期行为。", "context": "论文基准中的 instruction 字段承载待解决的 PLC 编程需求，是代理工作流的输入。"}};
+  const terms = Object.keys(glossary).sort((a, b) => b.length - a.length);
+  const escaped = terms.map(t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+  const matcher = new RegExp('(^|[^A-Za-z0-9_])(' + escaped.join('|') + ')(?=$|[^A-Za-z0-9_])', 'gi');
+
+  function makeTermButtons() {
+    const root = document.querySelector('main');
+    if (!root) return;
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+      acceptNode(node) {
+        if (!node.nodeValue || !node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+        const parent = node.parentElement;
+        if (!parent || parent.closest('script, style, button, .term-card, .glossary-hint, .term-trigger')) {
+          return NodeFilter.FILTER_REJECT;
+        }
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    });
+
+    const textNodes = [];
+    while (walker.nextNode()) textNodes.push(walker.currentNode);
+
+    for (const node of textNodes) {
+      const text = node.nodeValue;
+      matcher.lastIndex = 0;
+      let match;
+      let last = 0;
+      let found = false;
+      const fragment = document.createDocumentFragment();
+
+      while ((match = matcher.exec(text)) !== null) {
+        found = true;
+        const start = match.index;
+        const prefix = match[1] || '';
+        const termText = match[2];
+        const termStart = start + prefix.length;
+
+        fragment.append(document.createTextNode(text.slice(last, start)));
+        if (prefix) fragment.append(document.createTextNode(prefix));
+
+        const key = terms.find(t => t.toLowerCase() === termText.toLowerCase());
+        if (!key) {
+          fragment.append(document.createTextNode(termText));
+        } else {
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'term-trigger';
+          button.textContent = termText;
+          button.dataset.termKey = key;
+          button.setAttribute('aria-haspopup', 'dialog');
+          button.setAttribute('aria-expanded', 'false');
+          button.setAttribute('aria-label', '点击查看术语释义：' + termText);
+          fragment.append(button);
+        }
+        last = termStart + termText.length;
+      }
+
+      if (found) {
+        fragment.append(document.createTextNode(text.slice(last)));
+        node.parentNode.replaceChild(fragment, node);
+      }
+    }
+  }
+
+  let activeButton = null;
+  let activeCard = null;
+
+  function closeCard() {
+    if (activeButton) activeButton.setAttribute('aria-expanded', 'false');
+    if (activeCard) activeCard.remove();
+    activeButton = null;
+    activeCard = null;
+  }
+
+  function openCard(button) {
+    const key = button.dataset.termKey;
+    const info = glossary[key];
+    if (!info) return;
+
+    if (activeButton === button) {
+      closeCard();
+      return;
+    }
+    closeCard();
+
+    const card = document.createElement('section');
+    card.className = 'term-card';
+    card.setAttribute('role', 'dialog');
+    card.setAttribute('aria-label', key + ' 术语解释');
+    card.innerHTML = `
+      <div class="term-card-head">
+        <div>
+          <h3 class="term-card-title"></h3>
+          <div class="term-card-full"></div>
+        </div>
+        <button class="term-card-close" type="button" aria-label="关闭释义卡片">×</button>
+      </div>
+      <div class="term-card-category"></div>
+      <div class="term-card-section-title">名词解释</div>
+      <p class="term-card-body definition"></p>
+      <div class="term-card-section-title">在本文中的作用</div>
+      <p class="term-card-body context"></p>
+    `;
+    card.querySelector('.term-card-title').textContent = key;
+    card.querySelector('.term-card-full').textContent = info.full;
+    card.querySelector('.term-card-category').textContent = info.category;
+    card.querySelector('.definition').textContent = info.definition;
+    card.querySelector('.context').textContent = info.context;
+    card.querySelector('.term-card-close').addEventListener('click', closeCard);
+
+    document.body.append(card);
+    button.setAttribute('aria-expanded', 'true');
+    activeButton = button;
+    activeCard = card;
+
+    const rect = button.getBoundingClientRect();
+    const cardRect = card.getBoundingClientRect();
+    const margin = 12;
+    let left = rect.left;
+    if (left + cardRect.width > window.innerWidth - margin) {
+      left = window.innerWidth - cardRect.width - margin;
+    }
+    left = Math.max(margin, left);
+
+    let top = rect.bottom + 9;
+    if (top + cardRect.height > window.innerHeight - margin) {
+      top = rect.top - cardRect.height - 9;
+    }
+    top = Math.max(margin, Math.min(top, window.innerHeight - cardRect.height - margin));
+
+    card.style.left = left + 'px';
+    card.style.top = top + 'px';
+  }
+
+  document.addEventListener('click', event => {
+    const button = event.target.closest('.term-trigger');
+    if (button) {
+      event.preventDefault();
+      openCard(button);
+      return;
+    }
+    if (activeCard && !event.target.closest('.term-card')) closeCard();
+  });
+
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape') closeCard();
+    if ((event.key === 'Enter' || event.key === ' ') &&
+        event.target.classList && event.target.classList.contains('term-trigger')) {
+      event.preventDefault();
+      openCard(event.target);
+    }
+  });
+
+  window.addEventListener('resize', closeCard);
+  window.addEventListener('scroll', closeCard, true);
+
+  const hint = document.createElement('div');
+  hint.className = 'glossary-hint';
+  hint.innerHTML = '<span class="hint-mark" aria-hidden="true"></span><span>带虚线下划线的专业名词可点击查看释义</span>';
+  const flow = document.querySelector('main .flow');
+  if (flow) flow.parentNode.insertBefore(hint, flow);
+
+  makeTermButtons();
+})();
+</script>
+
+</body>
+</html>
