@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#09111d">
+<title>__PAGE_TITLE__</title>
+<style>
+:root{color-scheme:dark;--bg:#09111d;--panel:#111d2c;--card:#162538;--line:#2a4057;--text:#edf4fb;--muted:#b6c5d4;--soft:#8fa4b9;--cyan:#82d9e8;--blue:#9dbcf2;--violet:#c0b7ed;--gold:#d9c08a}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:radial-gradient(ellipse 70% 22% at 90% 0%,#26365a55,transparent 70%),var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,"Segoe UI","Microsoft YaHei","PingFang SC",sans-serif;line-height:1.65}
+button{font:inherit}
+.page{width:min(1500px,calc(100% - 44px));margin:0 auto;padding:34px 0 80px}
+.hero{padding:20px 0 25px;border-bottom:1px solid var(--line)}
+.subtitle{color:var(--cyan);font-size:15px;font-weight:650;margin-bottom:8px}
+h1{font-size:clamp(26px,3vw,42px);line-height:1.35;letter-spacing:-.025em;margin:0 0 12px}
+.citation{color:var(--soft);font-size:13px;line-height:1.8;margin:0}
+.legacy-note{margin-top:15px;padding:10px 13px;border:1px solid #806d3d;background:#5c4b201f;color:#e9d39b;border-radius:9px;font-size:13px}
+.nav{display:flex;gap:8px;flex-wrap:wrap;padding:18px 0 26px}
+.nav a{color:#c1d2e2;text-decoration:none;background:#142235;border:1px solid var(--line);padding:7px 11px;border-radius:8px;font-size:12px}
+.nav a:hover{border-color:#6a9eaf;color:#fff}
+.section{margin:26px 0 42px;scroll-margin-top:18px}
+.section-head{display:flex;gap:13px;align-items:center;margin-bottom:17px}
+.section-head>span{font:700 11px ui-monospace,monospace;letter-spacing:.12em;color:var(--cyan);border:1px solid #42677b;border-radius:7px;padding:7px 9px}
+.section-head h2{font-size:22px;line-height:1.4;margin:0}
+.section-head p{font-size:12px;color:var(--soft);margin:3px 0 0}
+.guide-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.guide-card,.finding-card,.link-card,.equation-card,.experiment-card,.result-card,.review-card,.transfer-card,.unresolved-card,.figure-card{background:linear-gradient(145deg,#17283b,#111d2d);border:1px solid var(--line);border-radius:13px;padding:17px;min-width:0}
+.guide-card h3,.finding-card h3,.link-card h3,.equation-card h3,.experiment-card h3,.result-card h3,.review-card h3,.transfer-card h3,.unresolved-card h3,.figure-card h3{margin:0 0 10px;font-size:16px;line-height:1.5}
+.guide-card h3{color:var(--cyan)}
+.prior-item{padding:11px 0;border-top:1px solid #2a405766}
+.prior-item:first-child{border-top:0;padding-top:0}
+.prior-item h4{margin:0 0 5px;font-size:14px;color:#e2eafa}
+.prior-item p,.finding-card p,.link-card p,.method-node p,.figure-card p{font-size:13px;color:var(--muted);margin:5px 0 9px;line-height:1.8}
+.info-row{display:grid;grid-template-columns:105px minmax(0,1fr);gap:10px;padding:7px 0;border-top:1px solid #2a40574f;font-size:12.5px;line-height:1.7}
+.info-row strong{color:#d6e4f0;font-weight:650}
+.info-row span{color:var(--muted);overflow-wrap:anywhere}
+.finding-grid,.link-grid,.equation-grid,.experiment-grid,.result-grid,.review-grid,.transfer-grid,.unresolved-grid,.figure-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.finding-no,.figure-kicker{font:700 11px ui-monospace,monospace;letter-spacing:.12em;color:var(--cyan);margin-bottom:9px}
+.finding-card h3{font-size:17px}
+.relation{display:inline-block;font-size:10px;color:#d3c9f4;background:#8d7ac51c;border:1px solid #71649c66;padding:3px 7px;border-radius:6px;margin-bottom:8px}
+.source-ref{margin-top:9px;border-top:1px dashed #49607877;padding-top:8px;color:var(--soft);font-size:11px;line-height:1.7}
+.source-ref b{display:block;color:#c3d3e1;margin-bottom:2px}
+.tree-root{display:inline-block;background:#1c3147;border:1px solid #41647b;border-radius:9px;padding:9px 14px;color:#d8f3f7;font-size:14px;font-weight:650;margin-bottom:15px}
+.method-tree-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;align-items:start}
+.method-node{border:1px solid #40566a;background:#142438;border-radius:11px;padding:13px;margin:7px 0;min-width:0}
+.method-node[data-depth="2"]{background:#183035;border-color:#426465}
+.method-node[data-depth="3"]{background:#29283b;border-color:#5c5872}
+.method-node[data-depth="4"],.method-node[data-depth="5"]{background:#342d2c;border-color:#6d5b50}
+.method-node-head{display:flex;gap:8px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap}
+.method-node h3{font-size:14px;margin:0;line-height:1.5}
+.method-children{margin:10px 0 0 12px;padding-left:12px;border-left:1px dashed #63839a}
+.equation-card pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#0b1522;border:1px solid #2c4359;border-radius:8px;padding:12px;color:#e5f0fb;font:14px/1.7 ui-monospace,Consolas,monospace}
+.result-value{font-size:24px;color:var(--cyan);font-weight:750;margin:4px 0 12px;overflow-wrap:anywhere}
+.primary-btn{border:1px solid #4e8798;background:#1b4655;color:#e1fbff;border-radius:8px;padding:8px 12px;font-size:12px;cursor:pointer}
+.primary-btn:hover{background:#245c6c}
+.panel-count{display:inline-block;color:var(--soft);font-size:11px;margin-left:10px}
+.severity{font-size:10px;color:#e9d49b;background:#806b2b22;border:1px solid #8e794955;border-radius:6px;padding:3px 7px}
+.review-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.empty-note{grid-column:1/-1;color:var(--soft);font-size:13px;padding:12px;border:1px dashed #3b5269;border-radius:9px}
+.source-scope{border-top:1px solid var(--line);padding-top:20px}
+.term{display:inline;color:#9ee4ef;background:none;border:0;border-bottom:1px dotted #78b8c7;padding:0 1px;cursor:pointer;font-weight:650}
+.term:hover{color:#fff}
+.term:focus-visible,.primary-btn:focus-visible,.details-toggle:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
+.details-toggle{border:0;background:none;color:#a9c6e4;padding:8px 0 0;cursor:pointer;font-size:12px}
+.details[hidden]{display:none}
+.details{margin-top:6px}
+.legacy-note{line-height:1.7}
+.term-card{position:fixed;z-index:10001;display:none;width:min(390px,calc(100vw - 24px));max-height:70vh;overflow:auto;background:#1a2a40;border:1px solid #5b7892;border-radius:13px;padding:17px;box-shadow:0 20px 70px #000b}
+.term-card h3{font-size:18px;margin:0}
+.term-card .full{color:var(--soft);font-size:12px;margin-top:3px}
+.term-card .cn{color:var(--cyan);font-size:13px;font-weight:700;margin:10px 0}
+.term-card p{font-size:13px;color:#d2dfec;line-height:1.8;margin:5px 0 12px}
+.term-close{float:right;border:0;background:#31455d;color:#fff;border-radius:6px;width:28px;height:28px;cursor:pointer}
+.modal[hidden]{display:none}
+.modal{position:fixed;inset:0;z-index:10000;background:#02060de8;display:flex;align-items:center;justify-content:center;padding:38px 14px 14px}
+.modal-wrap{width:min(1500px,100%);max-height:100%;display:flex;flex-direction:column;gap:8px}
+.modal-close{align-self:flex-end;border:0;background:#293a50;color:#fff;border-radius:7px;width:34px;height:30px;font-size:20px;cursor:pointer}
+.fig-layout{display:flex;gap:15px;align-items:flex-start;justify-content:center;max-height:82vh;min-height:0}
+.fig-sheet{position:relative;max-width:100%;min-width:0;line-height:0}
+.fig-sheet img{display:block;max-width:100%;max-height:80vh;width:auto;height:auto;object-fit:contain;background:#fff;border-radius:4px}
+.fig-hotspots{position:absolute;inset:0}
+.fig-hotspot{position:absolute;border:1.5px solid transparent;border-radius:4px;background:#35b9ef05;cursor:pointer;color:#fff}
+.fig-hotspot:after{content:attr(data-letter);position:absolute;top:2px;right:2px;background:#10243cdd;border:1px solid #8dd7e9;border-radius:4px;padding:1px 5px;font:700 11px ui-monospace,monospace}
+.fig-hotspot:hover,.fig-hotspot[aria-pressed="true"]{border-color:#65d8f5;background:#39b9ed2a}
+.subplot-card{width:min(420px,40vw);max-height:80vh;overflow:auto;background:#182a40;border:1px solid #55758d;border-radius:12px;padding:17px;line-height:1.6}
+.subplot-card[hidden]{display:none}
+.subplot-card h3{font-size:17px;margin:0 0 10px}
+.subplot-card h4{font-size:11px;color:var(--cyan);margin:12px 0 3px}
+.subplot-card p{font-size:12.5px;color:#d1deea;margin:0;white-space:pre-wrap}
+.subplot-card canvas{max-width:100%;max-height:210px;background:white;border-radius:5px}
+.fig-caption{font-size:12px;color:#b9c9d8}
+@media(max-width:950px){.guide-grid{grid-template-columns:1fr}.fig-layout{flex-direction:column;align-items:center;overflow:auto}.fig-sheet{width:100%}.fig-sheet img{max-height:none;width:100%}.subplot-card{width:100%;max-height:none}.method-tree-grid{grid-template-columns:1fr}}
+@media(max-width:680px){.page{width:calc(100% - 22px);padding-top:22px}.finding-grid,.link-grid,.equation-grid,.experiment-grid,.result-grid,.review-grid,.transfer-grid,.unresolved-grid,.figure-grid{grid-template-columns:1fr}.section-head h2{font-size:19px}.info-row{grid-template-columns:88px minmax(0,1fr)}.nav{gap:6px}.nav a{font-size:11px;padding:6px 8px}.modal{padding:34px 7px 7px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+__MAIN__
+<div id="termCard" class="term-card" role="dialog" aria-label="术语解释">
+<button type="button" class="term-close" id="termClose" aria-label="关闭">×</button>
+<h3 id="termTitle"></h3><div class="full" id="termFull"></div><div class="cn" id="termCn"></div>
+<h4>在本文中的含义</h4><p id="termMeaning"></p><h4>作用与区别</h4><p id="termRole"></p>
+</div>
+<section id="figureModal" class="modal" hidden role="dialog" aria-modal="true" aria-label="原文图表与子图解释">
+<div class="modal-wrap">
+<button type="button" class="modal-close" id="figClose">关闭 ×</button>
+<div class="fig-layout">
+<div class="fig-sheet" id="figSheet"><img id="figImage" alt="论文原文图表"><div id="panelHotspots" class="fig-hotspots"></div></div>
+<aside id="subplotCard" class="subplot-card" hidden>
+<h3 id="subplotTitle"></h3><canvas id="subplotCanvas"></canvas>
+<h4>实验目的</h4><p id="subplotPurpose"></p>
+<h4>读图方法</h4><p id="subplotHow"></p>
+<h4>观察结果</h4><p id="subplotResult"></p>
+<h4>论证意义</h4><p id="subplotSignificance"></p>
+<h4>证据边界</h4><p id="subplotLimit"></p>
+<p id="subplotSource" class="source-ref"></p>
+</aside>
+</div>
+<div id="figCaption" class="fig-caption"></div>
+</div>
+</section>
+<script>
+"use strict";
+const glossary = __GLOSSARY_JSON__;
+const figureImages = __FIGURE_IMAGES_JSON__;
+const figurePanels = __FIGURE_PANELS_JSON__;
+const figureMeta = __FIGURE_META_JSON__;
+
+document.querySelectorAll(".details-toggle").forEach(button => {
+  button.addEventListener("click", () => {
+    const panel = button.nextElementSibling;
+    const open = button.getAttribute("aria-expanded") === "true";
+    button.setAttribute("aria-expanded", String(!open));
+    panel.hidden = open;
+  });
+});
+
+const termCard = document.getElementById("termCard");
+let activeTermButton = null;
+function closeTerm() {
+  termCard.style.display = "none";
+  if (activeTermButton) activeTermButton.setAttribute("aria-expanded", "false");
+  activeTermButton = null;
+}
+function openTerm(button) {
+  const key = button.dataset.term;
+  const item = glossary[key];
+  if (!item) return;
+  closeTerm();
+  activeTermButton = button;
+  button.setAttribute("aria-expanded", "true");
+  document.getElementById("termTitle").textContent = key;
+  document.getElementById("termFull").textContent = item.full_name || "";
+  document.getElementById("termCn").textContent = item.chinese_translation || "";
+  document.getElementById("termMeaning").textContent = item.meaning_in_this_paper || "";
+  document.getElementById("termRole").textContent = [item.role, item.distinction].filter(Boolean).join("；");
+  termCard.style.display = "block";
+  termCard.style.left = "12px";
+  termCard.style.top = "12px";
+  const rect = button.getBoundingClientRect();
+  const card = termCard.getBoundingClientRect();
+  const left = Math.max(12, Math.min(rect.left, window.innerWidth - card.width - 12));
+  let top = rect.bottom + 8;
+  if (top + card.height > window.innerHeight - 12) top = rect.top - card.height - 8;
+  termCard.style.left = left + "px";
+  termCard.style.top = Math.max(12, top) + "px";
+}
+document.addEventListener("click", event => {
+  const button = event.target.closest(".term");
+  if (button) {
+    event.preventDefault();
+    openTerm(button);
+  } else if (!event.target.closest("#termCard")) {
+    closeTerm();
+  }
+});
+document.getElementById("termClose").addEventListener("click", closeTerm);
+
+const modal = document.getElementById("figureModal");
+const figureImage = document.getElementById("figImage");
+const hotspots = document.getElementById("panelHotspots");
+const subplotCard = document.getElementById("subplotCard");
+let currentFigure = null;
+let currentPanel = null;
+
+function closeSubplot() {
+  subplotCard.hidden = true;
+  currentPanel = null;
+  hotspots.querySelectorAll(".fig-hotspot").forEach(button => button.setAttribute("aria-pressed", "false"));
+}
+function drawCrop(panel) {
+  const canvas = document.getElementById("subplotCanvas");
+  const ctx = canvas.getContext("2d");
+  if (!figureImage.complete || !figureImage.naturalWidth) {
+    figureImage.addEventListener("load", () => drawCrop(panel), {once: true});
+    return;
+  }
+  const [x0, y0, x1, y1] = panel.rect;
+  const sx = x0 * figureImage.naturalWidth;
+  const sy = y0 * figureImage.naturalHeight;
+  const sw = (x1 - x0) * figureImage.naturalWidth;
+  const sh = (y1 - y0) * figureImage.naturalHeight;
+  const scale = Math.min(1.5, 760 / sw, 360 / sh);
+  canvas.width = Math.max(1, Math.round(sw * scale));
+  canvas.height = Math.max(1, Math.round(sh * scale));
+  ctx.fillStyle = "#fff";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(figureImage, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
+}
+function selectPanel(letter) {
+  if (currentPanel === letter) {
+    closeSubplot();
+    return;
+  }
+  const panel = (figurePanels[currentFigure] || []).find(item => item.letter === letter);
+  if (!panel) return;
+  currentPanel = letter;
+  hotspots.querySelectorAll(".fig-hotspot").forEach(button => {
+    button.setAttribute("aria-pressed", String(button.dataset.letter === letter));
+  });
+  document.getElementById("subplotTitle").textContent = "子图 " + letter + " · " + panel.title;
+  const fields = [
+    ["purpose", "subplotPurpose"], ["how", "subplotHow"], ["result", "subplotResult"],
+    ["significance", "subplotSignificance"], ["limit", "subplotLimit"], ["source", "subplotSource"]
+  ];
+  fields.forEach(([key, id]) => document.getElementById(id).textContent = panel[key] || "");
+  subplotCard.hidden = false;
+  drawCrop(panel);
+}
+function populateHotspots(number) {
+  hotspots.replaceChildren();
+  (figurePanels[number] || []).forEach(panel => {
+    const [x0, y0, x1, y1] = panel.rect;
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "fig-hotspot";
+    button.dataset.letter = panel.letter;
+    button.setAttribute("data-letter", panel.letter);
+    button.setAttribute("aria-label", "查看子图 " + panel.letter);
+    button.setAttribute("aria-pressed", "false");
+    button.style.left = (x0 * 100) + "%";
+    button.style.top = (y0 * 100) + "%";
+    button.style.width = ((x1 - x0) * 100) + "%";
+    button.style.height = ((y1 - y0) * 100) + "%";
+    button.addEventListener("click", event => {
+      event.stopPropagation();
+      selectPanel(panel.letter);
+    });
+    hotspots.append(button);
+  });
+}
+function closeFigure() {
+  modal.hidden = true;
+  closeSubplot();
+  figureImage.removeAttribute("src");
+  currentFigure = null;
+}
+document.querySelectorAll("[data-fig]").forEach(button => {
+  button.addEventListener("click", () => {
+    currentFigure = button.dataset.fig;
+    closeSubplot();
+    figureImage.src = figureImages[currentFigure];
+    figureImage.alt = figureMeta[currentFigure]?.caption || "论文原文图表";
+    document.getElementById("figCaption").textContent = [
+      figureMeta[currentFigure]?.caption,
+      figureMeta[currentFigure]?.page
+    ].filter(Boolean).join(" · ");
+    populateHotspots(currentFigure);
+    modal.hidden = false;
+    document.getElementById("figClose").focus();
+  });
+});
+document.getElementById("figClose").addEventListener("click", closeFigure);
+modal.addEventListener("click", event => {
+  if (event.target === modal) closeFigure();
+});
+document.addEventListener("keydown", event => {
+  if (event.key === "Escape") {
+    closeTerm();
+    closeFigure();
+  }
+});
+</script>
+</body>
+</html>
