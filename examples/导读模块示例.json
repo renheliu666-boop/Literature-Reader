@@ -1,0 +1,241 @@
+{
+  "page_title": "Literature Reader｜三卡片导读示例",
+  "heading": [
+    "少样本多能源需求预测：研究结果主线与方法分叉",
+    "A Few-Shot Multi-Energy Demand Forecasting Method Based on Meta-Learning Graph Neural Network"
+  ],
+  "citation": "Ruixia Zhang, Xuguang Hu, Qiuye Sun, and Dongyue Chen. IEEE Transactions on Automation Science and Engineering, Vol. 23, 2026, pp. 5790–5800. DOI: 10.1109/TASE.2026.3670783.",
+  "reading_guide": {
+    "research_question": {
+      "title": "研究问题｜小样本下，如何联合预测用户级电—气—热负荷？",
+      "question": "论文关注综合能源系统（IES）的用户级多能源需求预测：当历史数据有限时，如何同时预测电力、天然气和热负荷，并刻画用户之间的空间联系，以及不同能源载体之间的耦合关系。",
+      "importance": "用户级负荷预测是能源系统规划与运行优化的重要依据。预测不准可能造成区域供需失衡、连锁负荷冲击或不必要的机组运行。若模型能利用少量历史数据完成适应，可为电网扩建、运行优化和个性化能源服务提供更可靠的需求信息。",
+      "source": "Abstract；Introduction，期刊页 5790–5791。"
+    },
+    "prior_work": {
+      "title": "前人工作｜已有方法分别解决了什么？还差在哪？",
+      "approaches": [
+        {
+          "name": "多任务学习与特征融合",
+          "contribution": "能够利用电、气、热之间的关联",
+          "limitation": "但部分方法把用户视为整体或使用聚合负荷，容易弱化用户之间的细粒度空间差异。"
+        },
+        {
+          "name": "时空图神经网络",
+          "contribution": "能够描述用户间的空间关系",
+          "limitation": "但已有研究多集中于单一能源，或依赖预设距离、将空间与时间关系分开处理，对跨能源耦合及不同能源响应惯性的刻画不足。"
+        },
+        {
+          "name": "迁移学习与元学习",
+          "contribution": "有助于缓解样本不足",
+          "limitation": "但迁移学习通常依赖源域与目标域分布相近，而纯数据驱动的元学习可能难以区分真实物理耦合与偶然相关。"
+        }
+      ],
+      "gap": "需要一个同时表达用户级空间关系、同能源时空依赖和跨能源耦合，并能在少样本条件下快速适应的统一框架。",
+      "source": "Introduction，期刊页 5790–5791；相关工作讨论。"
+    },
+    "core_intuition": {
+      "title": "核心直觉｜先把多能源关系建清楚，再让模型学会快速适应",
+      "mechanism": [
+        "可以把不同用户、不同时间的电、气、热负荷看成一张图里的节点。模型先分别学习同一种能源内部的用户—时间关系，再学习电、气、热之间的跨能源关系，最后通过门控机制自适应融合两类信息。",
+        "与此同时，把 Energy Hub 中的设备能量转换效率、电价变化和价格弹性关系转化为伪任务，加入元训练过程。这样，模型不只从有限的真实负荷数据中学习，还能利用能源系统知识形成更合适的参数初始化，以便在目标任务样本较少时快速调整。"
+      ],
+      "summary": "图网络负责学习“用户和能源之间有什么关系”，Energy Hub 提供能源转换先验，元学习负责让模型“用少量样本快速适应”。",
+      "boundary": "论文通过伪任务将物理知识引入训练；不能据此直接认定预测输出严格满足能量守恒约束。",
+      "source": "Methodology，期刊页 5792–5794。"
+    }
+  },
+  "nodes": [
+    {
+      "title": "两个短时段小样本测试集上，模型的三能源平均误差均为表中最优",
+      "desc": "Dataset 1（45 d）：平均 MAE=3.29×10 kW、RMSE=6.07×10 kW、MAPE=5.89%；Dataset 2（30 d）：平均 MAE=4.48×10 kW、RMSE=8.03×10 kW、MAPE=8.13%。这三项平均指标在各自数据集的对比表中均优于所列基线。",
+      "page": "证据位置：Table IV–V（PDF 第 9 页）；模型结构 Fig. 1–2（第 3 页）；IES-134 拓扑 Fig. 3（第 6 页）。",
+      "root": "示例范围",
+      "branches": [],
+      "evidence": "本文件用于演示三卡片导读模块。结果文字沿用用户参考 HTML，未重新核对论文原文；完整参考页面另附。"
+    }
+  ],
+  "terms": {
+    "UMLF": [
+      "User-level Multi-energy Load Forecasting",
+      "用户级多能源负荷预测",
+      "以单个用户或用户节点为对象，同时预测其电、气、热等多种能源需求。",
+      "本文的核心预测任务，不是只预测整个区域的总负荷。"
+    ],
+    "IES": [
+      "Integrated Energy System",
+      "综合能源系统",
+      "由电力、燃气、供热、制冷等子系统构成，并通过转换设备实现能源耦合的系统。",
+      "论文实验对象 IES-134 属于综合能源系统。"
+    ],
+    "STSG": [
+      "Spatiotemporal Synchronous Graph",
+      "时空同步图",
+      "将空间节点关系与时间片关系共同组织成图结构，用图消息传递提取时空特征。",
+      "论文多关系时空图特征提取模块的名称。"
+    ],
+    "STCM": [
+      "Spatiotemporal Coupling Module",
+      "时空耦合模块",
+      "在图结构中建模节点之间及不同时间片之间的依赖关系。",
+      "论文将 STSG 进一步拆为同能源和跨能源两个 STCM。"
+    ],
+    "Intra-Energy STCM": [
+      "Intra-Energy Spatiotemporal Coupling Module",
+      "同能源时空耦合模块",
+      "针对电、气、热中的每一种能源分别建图，学习同一能源模式内不同用户和时间片之间的关系。",
+      "论文消融中贡献最大的结构模块。"
+    ],
+    "Inter-Energy STCM": [
+      "Inter-Energy Spatiotemporal Coupling Module",
+      "跨能源时空耦合模块",
+      "把不同能源载体的节点放在联合图中，学习电、气、热之间的关联。",
+      "论文通过可学习 mask 调整跨能源图连接权重。"
+    ],
+    "GAT": [
+      "Graph Attention Network",
+      "图注意力网络",
+      "根据邻居的重要性分配注意力权重，再聚合邻居节点特征。",
+      "信息聚合模块用 masked multi-head GAT 表达用户邻域关系。"
+    ],
+    "MPNN": [
+      "Message Passing Neural Network",
+      "消息传递神经网络",
+      "节点通过图边从邻居接收并聚合消息，以更新节点表示。",
+      "同能源 STCM 在滑动时间窗口内使用消息传递。"
+    ],
+    "GLU": [
+      "Gated Linear Unit",
+      "门控线性单元",
+      "通过门控结构调节信息通过比例，过滤或保留不同特征。",
+      "跨能源图卷积中用于更新节点表示。"
+    ],
+    "MAML": [
+      "Model-Agnostic Meta-Learning",
+      "模型无关元学习",
+      "通过多个训练任务学习一个共享初始化，使模型在新任务上只需少量梯度更新即可适应。",
+      "论文少样本适应策略的主体。"
+    ],
+    "FOMAML": [
+      "First-Order Model-Agnostic Meta-Learning",
+      "一阶模型无关元学习",
+      "MAML 的一阶近似，忽略元梯度中的二阶导数项以降低计算开销。",
+      "论文公式（14）采用一阶近似。"
+    ],
+    "Energy Hub": [
+      "Energy Hub",
+      "能源枢纽模型",
+      "用转换矩阵描述电、气、热等能源输入、转换设备和输出负荷之间的关系。",
+      "论文用 Energy Hub 生成具有能源转换先验的伪任务。"
+    ],
+    "CCHP": [
+      "Combined Cooling, Heating and Power",
+      "冷热电联供",
+      "通过耦合设备同时提供电、热、冷等能源服务。",
+      "作为 IES-134 中的能源耦合设备之一。"
+    ],
+    "P2G": [
+      "Power-to-Gas",
+      "电转气",
+      "将电能转换为气体燃料或合成气的技术路径。",
+      "Energy Hub 能源转换矩阵中的设备类型。"
+    ],
+    "EB": [
+      "Electric Boiler",
+      "电锅炉",
+      "利用电能转换为热能的设备。",
+      "Energy Hub 模型中的电—热转换设备。"
+    ],
+    "GB": [
+      "Gas Boiler",
+      "燃气锅炉",
+      "利用天然气燃烧产生热能的设备。",
+      "Energy Hub 模型中的气—热转换设备。"
+    ],
+    "KDE": [
+      "Kernel Density Estimation",
+      "核密度估计",
+      "通过核函数平滑样本，估计数据的连续概率密度分布。",
+      "Fig. 5(a) 用来比较预测值和真实值的边际分布。"
+    ],
+    "PCA": [
+      "Principal Component Analysis",
+      "主成分分析",
+      "通过线性变换将高维数据投影到较低维空间，尽可能保留方差较大的方向。",
+      "Fig. 5(b) 用二维点云比较预测与真实样本的整体分布。"
+    ],
+    "SHAP": [
+      "SHapley Additive exPlanations",
+      "Shapley 加性解释",
+      "用 Shapley 值估计输入特征对模型输出的贡献。",
+      "Fig. 7 分析 N76 的电、气、热预测分别受哪些输入特征影响。"
+    ],
+    "MAE": [
+      "Mean Absolute Error",
+      "平均绝对误差",
+      "预测值与真实值差值绝对值的平均，单位与负荷相同。",
+      "论文性能评价指标之一，数值越小越好。"
+    ],
+    "RMSE": [
+      "Root Mean Square Error",
+      "均方根误差",
+      "误差平方后取平均再开方，对较大的误差更敏感。",
+      "论文性能评价指标之一，数值越小越好。"
+    ],
+    "MAPE": [
+      "Mean Absolute Percentage Error",
+      "平均绝对百分比误差",
+      "以百分比衡量预测值相对真实值的绝对误差。",
+      "论文性能评价指标之一；真实值接近零时可能不稳定。"
+    ],
+    "Support Set": [
+      "Support Set",
+      "支持集",
+      "元学习内循环用于对当前任务做少量梯度更新的数据子集。",
+      "MAML 在每个任务上进行参数适配时使用。"
+    ],
+    "Query Set": [
+      "Query Set",
+      "查询集",
+      "用于评价任务适配后模型泛化误差的数据子集，并参与外循环元参数更新。",
+      "MAML 的外循环使用查询集损失。"
+    ],
+    "Meta-parameter": [
+      "Meta-parameter",
+      "元参数",
+      "跨任务共享的初始化参数，论文中记为 φ。",
+      "MAML 通过多个任务的查询损失共同更新 φ。"
+    ],
+    "Pseudo-task": [
+      "Pseudo-task",
+      "伪任务",
+      "由模型或物理关系生成的模拟任务，用于补充训练阶段的任务多样性。",
+      "论文由 Energy Hub 物理转换关系生成伪样本。"
+    ],
+    "K-means": [
+      "K-means clustering",
+      "K 均值聚类",
+      "按样本间距离把数据划分为预设数量的簇。",
+      "论文用 K-means 将数据集划分为多个元学习任务。"
+    ],
+    "Adjacency Matrix": [
+      "Adjacency Matrix",
+      "邻接矩阵",
+      "以矩阵形式表示图中节点是否连接或连接强度。",
+      "论文用邻接矩阵描述用户间及跨能源节点关系。"
+    ],
+    "Time Decay Rate": [
+      "Time Decay Rate",
+      "时间衰减率",
+      "控制不同时间片之间关联权重随时间距离变化的速度。",
+      "论文分别为电、气、热设置衰减率 0.7、0.9、0.9。"
+    ],
+    "Negative Transfer": [
+      "Negative Transfer",
+      "负迁移",
+      "从源任务迁移来的知识不适合目标任务，反而降低目标任务表现。",
+      "作者将用户异质性和价格变化视为传统迁移学习可能出现负迁移的原因。"
+    ]
+  },
+  "figures": {}
+}
