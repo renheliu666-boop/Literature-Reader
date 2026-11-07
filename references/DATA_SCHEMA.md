@@ -1,147 +1,160 @@
-# 结构化数据与构建器接口
+# DATA_SCHEMA：论文结构化数据规范
 
-> `scripts/build_html.py paper.json output.html`。JSON 示例在 `examples/IL6_论文分析数据.json`。脚本仅使用标准库并自动把图像编码到独立 HTML。
+构建命令：`python scripts/build_html.py paper.json output.html`。图片路径相对于 JSON 文件目录，构建后全部嵌入 HTML。
 
-## 顶层
+## 顶层字段
 
-| 字段 | 类型 | 用途 |
-|---|---|---|
-| `page_title` | string | 浏览器选项卡标题 |
-| `heading` | string[] | 首元素中文标题；第二元素原论文题目（可只有一个） |
-| `citation` | string | 论文作者、年份、期刊简明信息 |
-| `navigation` | string[] | 与 `nodes` 等长的短导航词，可省略 |
-| `reading_guide` | object | 标题下的研究问题、前人工作、核心直觉三卡片，详见下文 |
-| `nodes` | object[] | 真实研究结果/综述认识模块，推荐 3—7 项 |
-| `terms` | object | 术语名 → `[英文全称, 中文名称, 释义, 本文作用]` |
-| `figures` | object | 图号字符串 → `{image, source, panels}` |
+| 字段 | 类型 | 必需 | 说明 |
+|---|---|---:|---|
+| `page_title` | string | 否 | 浏览器标题 |
+| `heading` | string[] | 是 | 中文标题；可追加英文原题 |
+| `citation` | string | 否 | 作者、年份、期刊、DOI |
+| `reviewer_view` | object | 推荐 | 审稿人视角四问 |
+| `navigation` | string[] | 否 | 与 nodes 等长的导航标签 |
+| `nodes` | object[] | 是 | 研究结果/研究认识主线 |
+| `terms` | object | 否 | 中英文术语词典 |
+| `figures` | object | 否 | 完整原图及明确标注子图 |
+| `critical_review` | object | 否 | 审稿人评价和研究边界 |
 
-## `nodes[]`
-
-- `title`：结论式标题；**不能**是“实验背景”“研究目标”等概括。
-- `desc`：1—2 句表述结果的技术信息与定量证据。
-- `page`：原文页码/结果小节/图号。
-- `root`：右侧分叉树的总题。
-- `branches[]`：各条技术/实验方法卡片，包含 `title`、`label`、`goal`、`items`，可添加 `level`（1—4）指定可视层级。同一个根节点下的**并列卡片必须使用相同 `level`**，无论实验所处理问题先后如何。只有明确标出顺序推进的模式，才允许不同等级。不能根据两栏位置、行号或实验叙述顺序来推断视觉递进。
-- `branch_relation`：`"parallel"`（默认，表示同层分叉）或 `"sequence"`（明确的顺序步骤）。后者才允许在同一模块下使用不同 `level`，并在页面插入醒目的递进箭头。必须有原文方法顺序依据。
-- `evidence`：图表或正文证据的说明。
-- `figure`：关联的 `figures` 字典 key，如 `"1"`；该图若无关联可写 `""`。
-
-### `branch_relation` 与 `branches[].level`：统一的视觉层级
-
-本规范**优先按图的拓扑结构着色，不按“研究过程的先后”着色**。当多个卡片都直接连接同一个“方法分叉”根节点时，它们处于相同视觉层级，即使分别展示信号分析、候选筛选和敲低验证，也一律同色。这样不会出现“同一父节点的三个孩子却被涂成三个层级”的情况。
-
-- `branch_relation: "parallel"` 为默认：所有同一个 `nodes[]` 下的 `branches[]` 必须具有**同一个** `level`（默认均为 `1`）。否则生成器报错，避免悄悄错误着色。
-- `branch_relation: "sequence"`：**仅当原文明示输出进入下一步骤，而且界面显示了连续箭头**，才允许按递进阶段将 `level` 从 `1` 改为 `2`、`3` 等；此时按纵向顺序展示，并将顺序关系可视化，不是仍摆在一个两列并列网格里。
-- 背景色低饱和度：一级雾蓝灰、二级灰青绿、三级灰紫、四级暖灰棕；同级的卡片背景、边框和标签一致。
-- 不要把“证据的深入”“研究章节排序”“先筛选再验证”的自然叙述顺序自动当成界面分层。
-
-**普通并列方法例子：**
+## reviewer_view
 
 ```json
 {
-  "branch_relation": "parallel",
-  "branches": [
-    {"title": "三条信号的互补贡献", "level": 1, "items": []},
-    {"title": "候选转录因子发现", "level": 1, "items": []},
-    {"title": "四个转录因子的功能贡献", "level": 1, "items": []}
-  ]
-}
-```
-
-**真正有明确箭头的顺序步骤例子：**
-
-```json
-{
-  "branch_relation": "sequence",
-  "branches": [
-    {"title": "输入准备", "level": 1, "items": []},
-    {"title": "转换处理", "level": 2, "items": []},
-    {"title": "独立验证", "level": 3, "items": []}
-  ]
-}
-```
-
-以上只说明配色结构，正式论文中每个 `items` 必须包括 `name`、`core`、`effect`，不能留空。
-
-## `branches[].items[]`
-
-最低必须有 `name`、`core`、`effect`，其余可按论文填写：
-
-| 字段 | 解释 |
-|---|---|
-| `name` | 论文中正式的技术/实验方法名称 |
-| `core` | 具体输入或前提 + 关键算法/实验机制 → 输出，优先 15—35 中文字符 |
-| `effect` | 该机制解决了什么具体难题，勿写“增强效果”等泛语 |
-| `role` | 如“并列方案”“组成环节”“来源证据”“因果干预”“独立验证” |
-| `input` | 方法输入对象、数据或培养条件 |
-| `steps` | 原文明确操作顺序与关键参数 |
-| `difference` | 相比基线/对照或其他方法的真实差别 |
-| `limit` | 实验边界、性能不足、证据限制 |
-| `source` | 图号、PDF 页码、章节 |
-
-存在方法详情字段时，“查看方法细节”点击按钮自动生成；没有详情时不显示无效按钮。
-
-## `figures`
-
-```json
-{
-  "figures": {
-    "1": {
-      "image": "figures/fig1.jpg",
-      "source": "Fig. 1 | PDF 第3页",
-      "panels": [
-        {
-          "letter": "a",
-          "rect": [0.08, 0.03, 0.92, 0.20],
-          "title": "实验设计流程",
-          "purpose": "图要解决的问题与对照关系",
-          "how": "步骤、箭头、时间、分组或坐标轴/图例的详细解释",
-          "result": "实验直接观察的结果；若流程图本身不提供结果，应明确说明",
-          "significance": "对研究主张的证据作用",
-          "limit": "无法由此图直接推断的内容",
-          "source": "Fig. 1a · PDF第3页"
-        }
-      ]
+  "reviewer_view": {
+    "research_question": "[论文原文] 研究对象、核心问题、重要性和解决后的价值。",
+    "prior_work": "[前人文献] 前人方法和进展；[审稿人评价] 具体不足。",
+    "core_intuition": "[合理推断] 本文核心思路及推理依据。",
+    "worked_example": {
+      "scenario": "[论文原文] 真实案例对象和上下文。",
+      "input": "真实数据、变量、样本、尺度和参数。",
+      "processing": "原文报告的预处理、方法步骤、对照和验证。",
+      "output": "论文实际报告的指标或结果。",
+      "interpretation": "[合理推断] 结果支持什么，不能推出什么。"
     }
   }
 }
 ```
 
-所有 `rect` 坐标是相对于**实际上传/嵌入图像内容**的比例值，不是相对于论文全页的值。`[x0,y0,x1,y1]` 含义：左边、上边、右边、下边；`0 <= x0 < x1 <= 1` 且 `0 <= y0 < y1 <= 1`。切忌更换裁图后继续使用旧坐标。可运行 `--debug-hotspots` 显示所有点击区域并校准。
+## nodes：结果主线和方法树
 
-`image` 作为相对路径时相对于 `paper.json` 所在文件夹；支持 PNG、JPEG、WEBP、GIF。生成后图片与解释都嵌入 HTML，拷贝单个 HTML 即可阅读。
+```json
+{
+  "nodes": [{
+    "title": "结论式研究发现标题",
+    "desc": "[论文原文] 1—2句说明发现和关键证据。",
+    "page": "Results第X节；PDF第X页；Fig. X",
+    "root": "支撑该结果的方法与证据",
+    "branch_relation": "parallel",
+    "branches": [{
+      "title": "方法模块标题",
+      "label": "模型/实验/统计分析",
+      "goal": "该分支回答的问题",
+      "level": 1,
+      "items": [{
+        "name": "论文原文方法名称",
+        "core": "输入/限制 + 核心机制 → 输出",
+        "effect": "具体解决的问题",
+        "role": "方法在证据链中的作用",
+        "input": "真实输入和数据条件",
+        "steps": "原文步骤、参数和操作顺序",
+        "parameters": "关键公式、参数和单位",
+        "difference": "相对基线或其他方法的真实差异",
+        "limit": "适用边界和局限",
+        "source": "章节、页码、图表"
+      }]
+    }],
+    "evidence": "原文证据概述",
+    "figure": "1"
+  }]
+}
+```
 
-`title`、`purpose`、`how`、`result`、`significance`、`limit`、`source` 是面板所需字段；若原文缺少某项，给空字符串或标注“原文未报告”，不得臆造。方法详情同理。
+`branch_relation` 只能是 `parallel` 或 `sequence`。并列分支使用相同 level；只有原文证实的顺序流程才用 sequence。每个方法的 name/core/effect 必填。`figure` 必须指向 figures 中存在的图号。一个结果可用 `figures: ["1","2"]` 引用多张图。
 
-### 不要误用统计描述
+## terms：中英文术语
 
-- 显著性星号须对照原文图注，不能统一假设。`n=3` 是否独立生物样本需确认。
-- 箱线图、散点、曲线图、流式细胞、WB、电镜照片、荧光共染、转录组热图的读图要点不同；每个面板 `how` 必须按真实图型写。
-- 对组合图中同时包含多张小图的面板，不能仅写“一组柱状图说明增长”；应逐项说明测什么、怎么比较、横纵轴、组别差异。
-- 若原文图6只展示 pathway inhibition 与转录因子变化，不得据此声称已通过 ChIP 证明直接结合。
+推荐对象格式：
 
+```json
+{
+  "terms": {
+    "GNN": {
+      "full_name": "Graph Neural Network",
+      "chinese_name": "图神经网络",
+      "definition": "利用图结构及邻居关系学习节点或图表示的神经网络方法。",
+      "analogy": "把节点看成路口，模型会综合相邻路口的信息。",
+      "role": "本文使用图结构聚合电网节点特征。",
+      "aliases": ["Graph Neural Network", "Graph Neural Networks", "图神经网络"],
+      "source": "论文第X节或可核验来源"
+    }
+  }
+}
+```
 
+别名包括缩写、英文全称、单复数、大小写变体和中文名称。英文匹配忽略大小写并使用词边界，避免 GNN 错误匹配到 Ts-GNN 内部。别名不得同时指向不同术语。不能确认英文全称时留空，不得猜。兼容旧格式 `[英文全称, 中文名称, 释义, 本文作用]`。
 
-## 论文导读：`reading_guide`
+## figures：完整原图和可选子图
 
-新增论文默认生成三张常显导读卡，位于论文标题下、出处与结果导航上方。宽屏三列，窄屏单列；术语仍可点击。它独立于 `nodes`，不计入结果数量。为兼容旧数据，省略整个字段时不生成导读；一旦提供，三张卡必须完整，构建器会校验字段和类型。字段均为纯文本，禁止传入 HTML；机制段落用数组。
+```json
+{
+  "figures": {
+    "1": {
+      "title": "Fig. 1 原图标题",
+      "image": "figures/fig1.png",
+      "source": "Fig. 1；PDF第X页",
+      "description": "完整原图的目的、结构、图例、坐标和结论边界。",
+      "has_explicit_panels": false,
+      "panel_label_evidence": "",
+      "panels": []
+    },
+    "2": {
+      "title": "Fig. 2 原图标题",
+      "image": "figures/fig2.png",
+      "source": "Fig. 2；PDF第Y页",
+      "description": "完整图解释。",
+      "has_explicit_panels": true,
+      "panel_label_evidence": "原图可见(a)、(b)标签，图注分别描述。",
+      "panels": [{
+        "letter": "a",
+        "rect": [0.02, 0.04, 0.48, 0.46],
+        "crop_image": "figures/fig2a.png",
+        "title": "子图a回答的问题",
+        "purpose": "实验目的或对照设计",
+        "how": "坐标轴、图例、颜色、单位、统计标记如何读取",
+        "result": "原图直接展示的结果",
+        "significance": "结果支持论文的哪项主张",
+        "limit": "图中证据不能推出什么",
+        "source": "Fig. 2a；PDF第Y页"
+      }]
+    }
+  }
+}
+```
 
-| 路径 | 内容 |
-|---|---|
-| `research_question.title` | “研究问题｜具体科研问题” |
-| `research_question.question` | 研究对象、任务、约束及关键未知 |
-| `research_question.importance` | 为什么重要，须限定在原文支持范围 |
-| `research_question.source` | 摘要/引言等原文位置 |
-| `prior_work.title` | “前人工作｜已有方法解决了什么，还差在哪？” |
-| `prior_work.approaches[]` | 每项含 `name`、`contribution`、`limitation`，分别为路线名、已有贡献、局限；至少一项，通常 2—4 项 |
-| `prior_work.gap` | 原文支持的本文切入点，勿将作者评价当作全领域共识 |
-| `prior_work.source` | 引言/相关工作原文位置 |
-| `core_intuition.title` | “核心直觉｜核心思路的直白表述” |
-| `core_intuition.mechanism` | 非空字符串数组，每项为一段机制说明 |
-| `core_intuition.summary` | 一句话串起关键模块如何配合 |
-| `core_intuition.boundary` | 该直觉不意味着什么，或哪些证据尚缺；原文未说明就明确写出 |
-| `core_intuition.source` | 方法/讨论/图号和原文页码 |
+硬性规则：
+- `image` 始终是完整原图。
+- `panels` 只存原文明确标注 a/b/c 等面板。
+- `panels` 非空时，`has_explicit_panels` 必须为 true，且 `panel_label_evidence` 非空。
+- 无明确面板字母时，使用 false 和空数组。
+- `rect` 为完整原图中的归一化 `[x0,y0,x1,y1]`，范围 0–1。
+- `crop_image` 可选；未提供时由浏览器 Canvas 裁局部预览。
+- 流程框、折线系列、热图区域、网络局部和颜色分区不得写入 panels。
 
-所有叶子文本为非空字符串；未知内容写“原文未说明”。卡片标题、来源、提醒同样经过 HTML 转义。完整可运行数据见 `examples/导读模块示例.json`，来自用户提供的能源预测论文阅读 HTML；仅参考其内容组织，不代表重新核验原论文。不同论文必须重新填入数据。
+## critical_review（可选）
 
+```json
+{
+  "critical_review": {
+    "innovation": "[审稿人评价] 实质创新及依据。",
+    "strengths": ["证据支持的优点"],
+    "limitations": ["原文局限或审稿人识别的不足"],
+    "generalization": "适用范围和泛化边界。",
+    "reproducibility": "数据、代码、参数和验证的可复现性。",
+    "open_questions": ["仍需回答的问题"]
+  }
+}
+```
 
+## 构建器校验
+
+构建器检查必需字段、图片路径、并列/顺序层级、面板坐标、重复字母，以及子图是否声明原文标签。脚本无法自动验证面板字母是否真实存在；必须由 Agent 对照 PDF 原图和图注确认。

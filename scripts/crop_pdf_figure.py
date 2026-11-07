@@ -1,44 +1,30 @@
 #!/usr/bin/env python3
-"""Render one PDF page (or a selected figure rectangle) to PNG using PyMuPDF.
-
-Optional dependency: pip install pymupdf
-Page and rectangle selection is source-dependent and must be visually verified.
+"""Crop a complete figure region from a PDF page using optional PyMuPDF.
+Page is 1-based. --rect coordinates are PDF points from the page top-left.
+Without --rect, the entire page is exported.
 """
-import argparse
+from __future__ import annotations
+import argparse, sys
 from pathlib import Path
 
-
 def main():
-    ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument('pdf', type=Path)
-    ap.add_argument('page', type=int, help='1-based physical PDF page number, not printed page number')
-    ap.add_argument('output', type=Path)
-    ap.add_argument('--rect', nargs=4, type=float, metavar=('X0', 'Y0', 'X1', 'Y1'), help='crop rectangle in PDF points; omit to render the whole page')
-    ap.add_argument('--dpi', type=int, default=220)
-    a = ap.parse_args()
-    try:
-        import fitz
-    except ImportError as ex:
-        raise SystemExit('Requires PyMuPDF for PDF rendering: python -m pip install pymupdf') from ex
-    if not a.pdf.exists():
-        raise SystemExit(f'File not found: {a.pdf}')
-    with fitz.open(str(a.pdf)) as doc:
-        if not (1 <= a.page <= len(doc)):
-            raise SystemExit(f'page must be between 1 and {len(doc)}')
-        page = doc[a.page-1]
-        if a.rect:
-            rect = fitz.Rect(*a.rect)
-            if rect.is_empty or not page.rect.intersects(rect):
-                raise SystemExit(f'Invalid/empty rectangle: {a.rect}; page bounds: {page.rect}')
-            rect &= page.rect
-        else:
-            rect = page.rect
-        pix = page.get_pixmap(clip=rect, matrix=fitz.Matrix(a.dpi/72,a.dpi/72),alpha=False)
-        a.output.parent.mkdir(parents=True, exist_ok=True)
-        pix.save(str(a.output))
-    print(f'Saved {a.output} ({pix.width} x {pix.height})')
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("pdf",type=Path);parser.add_argument("page",type=int)
+    parser.add_argument("output",type=Path);parser.add_argument("--dpi",type=int,default=240)
+    parser.add_argument("--rect",nargs=4,type=float,metavar=("X0","Y0","X1","Y1"))
+    args=parser.parse_args()
+    try:import fitz
+    except ImportError:
+        print("Install optional dependency: python -m pip install pymupdf",file=sys.stderr);return 2
+    if not args.pdf.is_file():parser.error(f"PDF not found: {args.pdf}")
+    doc=fitz.open(args.pdf)
+    if not 1<=args.page<=len(doc):parser.error(f"page must be between 1 and {len(doc)}")
+    page=doc[args.page-1];clip=page.rect
+    if args.rect:
+        clip=fitz.Rect(*args.rect)&page.rect
+        if clip.is_empty or clip.width<=0 or clip.height<=0:parser.error("crop rectangle does not intersect the page")
+    pix=page.get_pixmap(matrix=fitz.Matrix(args.dpi/72,args.dpi/72),clip=clip,alpha=False,annots=True)
+    args.output.parent.mkdir(parents=True,exist_ok=True);pix.save(args.output)
+    print(f"Created {args.output} ({pix.width}x{pix.height})");return 0
 
-
-if __name__ == '__main__':
-    main()
-
+if __name__=="__main__":raise SystemExit(main())

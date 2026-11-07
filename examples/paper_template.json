@@ -1,0 +1,95 @@
+{
+  "page_title": "论文交互式精读",
+  "heading": [
+    "中文论文标题（请替换）",
+    "Original Paper Title (replace this text)"
+  ],
+  "citation": "作者、年份、期刊、DOI（请根据原文填写）",
+  "reviewer_view": {
+    "research_question": "[论文原文] 填写作者试图解决的具体问题、研究对象和重要性。",
+    "prior_work": "[前人文献] 概括前人主要方法与不足；[审稿人评价] 单独标出评价。",
+    "core_intuition": "[合理推断] 用2—4句话说明论文关键思路及推理依据。",
+    "worked_example": {
+      "scenario": "[论文原文] 选择一个论文中可追溯的真实案例。",
+      "input": "填写真实数据源、变量、样本、时空范围和参数。",
+      "processing": "按原文顺序填写预处理、模型/实验步骤、对照和验证。",
+      "output": "填写论文实际报告的结果，不得虚构。",
+      "interpretation": "[合理推断] 说明结果支持什么、不能推出什么。"
+    }
+  },
+  "navigation": [
+    "核心发现"
+  ],
+  "nodes": [
+    {
+      "title": "研究发现标题（结论式）",
+      "desc": "[论文原文] 用1—2句话填写发现和关键证据。",
+      "page": "Results章节、PDF页码或图表编号",
+      "root": "支撑该结果的方法与证据",
+      "branch_relation": "parallel",
+      "branches": [
+        {
+          "title": "方法分支标题",
+          "label": "方法/实验/统计分析",
+          "goal": "该方法回答的问题",
+          "level": 1,
+          "items": [
+            {
+              "name": "原文方法名称",
+              "core": "输入/限制 + 核心机制 → 输出",
+              "effect": "该方法具体解决的问题",
+              "role": "该方法在证据链中的作用",
+              "input": "真实输入数据和条件",
+              "steps": "原文报告的步骤与关键参数",
+              "parameters": "关键公式、参数或单位",
+              "difference": "与基线/其他方法的真实差异",
+              "limit": "适用边界和局限",
+              "source": "原文页码、章节、图表"
+            }
+          ]
+        }
+      ],
+      "evidence": "对应原文证据。",
+      "figure": "1"
+    }
+  ],
+  "terms": {
+    "ExampleTerm": {
+      "full_name": "Example Full Name",
+      "chinese_name": "示例中文术语",
+      "definition": "这是结构占位说明，必须替换为目标论文的准确解释。",
+      "role": "说明该术语在当前论文中的具体作用。",
+      "aliases": [
+        "Example Term",
+        "示例中文术语"
+      ],
+      "source": "论文定义位置或可核验来源",
+      "analogy": "用一句通俗的话解释这个概念；类比不能替代原文定义。"
+    }
+  },
+  "figures": {
+    "1": {
+      "title": "Fig. 1 原图标题（请替换）",
+      "image": "figures/placeholder.svg",
+      "source": "Fig. 1；PDF第X页",
+      "description": "完整原图的目的、结构、图例、坐标和结论边界。",
+      "has_explicit_panels": false,
+      "panel_label_evidence": "",
+      "panels": []
+    }
+  },
+  "critical_review": {
+    "innovation": "[审稿人评价] 评价实质创新及依据。",
+    "strengths": [
+      "列出有证据支持的优点"
+    ],
+    "limitations": [
+      "列出原文局限或审稿人识别的不足"
+    ],
+    "generalization": "评价适用范围和泛化边界。",
+    "reproducibility": "评价数据、代码、参数和验证的可复现性。",
+    "open_questions": [
+      "列出仍需回答的问题"
+    ]
+  }
+}
