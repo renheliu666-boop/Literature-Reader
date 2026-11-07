@@ -71,6 +71,24 @@
 
 `branch_relation` 只能是 `parallel` 或 `sequence`。并列分支使用相同 level；只有原文证实的顺序流程才用 sequence。每个方法的 name/core/effect 必填。`figure` 必须指向 figures 中存在的图号。一个结果可用 `figures: ["1","2"]` 引用多张图。
 
+## 公式参数与符号
+
+`parameters` 可以是普通字符串，也可以是按原公式顺序排列的片段数组。数组里的字符串照常显示，`{"text": "符号", "term": "词条键"}` 将该片段变成点击入口。`term` 必须精确对应 `terms` 中的键。显示文字以 `text` 为准，可保留上下标和特殊符号。保留需要的空格和括号，连续片段会直接拼接。
+
+```json
+{
+  "parameters": [
+    "式（2）",
+    {"text": "hᵢ", "term": "eq2.h_i"},
+    " = σ(",
+    {"text": "W", "term": "eq2.W"},
+    "xᵢ + b)"
+  ]
+}
+```
+
+在顶层 `terms` 定义相应词条。例如 `"eq2.h_i": {"formula_only": true, "definition": "第 i 个节点的输出特征向量。", "role": "记录该式计算出的节点表示。", "source": "式（2）"}`。`formula_only: true` 表示词条只通过显式片段引用，不参与正文中的自动术语匹配。相同字符若在两处表示不同量，为每种含义分别定义词条键。已有的专业术语（如激活函数名）也可以直接引用其词条。
+
 ## terms：中英文术语
 
 推荐对象格式：

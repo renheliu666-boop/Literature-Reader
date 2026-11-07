@@ -39,6 +39,7 @@ header .sub{color:#a9bfd3;line-height:1.75;font-size:14px;margin:0 0 22px}.head-
 .evtitle{font-weight:670;font-size:12px;color:#d1dcf6}.evtext{color:#a9bacc;font-size:11px;line-height:1.7;margin-top:4px}.figure-buttons{display:flex;flex-wrap:wrap;gap:6px}
 .figbtn{cursor:pointer;border:1px solid rgba(111,200,225,.3);background:rgba(79,156,181,.13);border-radius:7px;color:#a7e9f2;padding:9px 12px;font-size:11px;white-space:nowrap}.figbtn:hover{background:rgba(79,156,181,.22)}
 .term-link{display:inline;cursor:pointer;color:#91e5f3;font:inherit;font-weight:620;padding:0 1px;background:none;border:0;border-bottom:1px dashed rgba(99,215,232,.7);text-decoration:none}.term-link:hover,.term-link:focus-visible{color:#d3fbff;background:rgba(99,215,232,.08);outline:none}
+.formula-text{white-space:pre-wrap}.formula-symbol{padding:0}
 .term-popover{z-index:20000;position:fixed;width:min(370px,calc(100vw - 24px));max-height:min(65vh,440px);overflow:auto;padding:0;border:1px solid rgba(99,215,232,.46);border-radius:13px;background:linear-gradient(155deg,#10263d,#091a2c);box-shadow:0 18px 60px rgba(0,0,0,.55),0 0 25px rgba(68,190,220,.08);display:none}
 .term-popover.open{display:block}.term-popover-head{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid rgba(130,190,220,.17);position:sticky;top:0;background:rgba(10,27,45,.97)}
 .term-popover-head span{font:700 9px ui-monospace,monospace;letter-spacing:.13em;color:var(--cyan)}.term-popover-close{width:25px;height:25px;border:1px solid rgba(112,184,215,.25);border-radius:6px;background:rgba(99,215,232,.08);color:#e4faff;font-size:17px;cursor:pointer}
@@ -94,6 +95,7 @@ function escapeRegExp(s){return s.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");}
 function termRows(){
  const rows=[];
  for(const [key,item] of Object.entries(TERMS)){
+  if(item.formula_only)continue;
   const d=Array.isArray(item)?{full_name:item[0],chinese_name:item[1],definition:item[2],role:item[3],aliases:[]}:item;
   const aliases=new Set([key,d.full_name,d.chinese_name,...(d.aliases||[])].filter(Boolean));
   for(const alias of aliases)rows.push({alias:String(alias),key});
@@ -136,7 +138,7 @@ function openTerm(key,button){
  activeTermButton=button;button.setAttribute("aria-expanded","true");
  const item=Array.isArray(d)?{full_name:d[0],chinese_name:d[1],definition:d[2],role:d[3]}:d;
  const body=document.getElementById("term-popover-body");body.replaceChildren();
- const title=document.createElement("div");title.className="term-popover-title";title.textContent=key;body.append(title);
+ const title=document.createElement("div");title.className="term-popover-title";title.textContent=button.classList.contains("formula-symbol")?button.textContent:key;body.append(title);
  const add=(label,value)=>{if(!value)return;const h=document.createElement("h4"),p=document.createElement("p");h.textContent=label;p.textContent=value;body.append(h,p);};
  add("英文全称",item.full_name);add("中文名称",item.chinese_name);add("准确含义",item.definition);add("通俗理解",item.analogy);add("在本文中的作用",item.role);add("来源",item.source);
  const pop=document.getElementById("term-popover");pop.classList.add("open");pop.style.visibility="hidden";pop.style.left="12px";pop.style.top="12px";

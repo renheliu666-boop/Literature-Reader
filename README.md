@@ -74,6 +74,7 @@ python scripts/mark_panels.py figures/fig1.png figures/fig1_panels.html
 - 只有原文明确标注的子图面板才有热点；点击热点显示局部放大和解释卡片。
 - 没有 a/b/c 等原文面板标记的图保持完整图，不进行人为拆分。
 - 点击中英文术语，在词汇附近显示小型浮动卡片；点击外部、关闭或按 Esc 关闭。
+- 「关键参数/公式」中的变量、函数和运算符可用 `parameters` 片段引用词条，点击查看该符号在当前公式里的含义。写法见 [公式参数与符号](references/DATA_SCHEMA.md#公式参数与符号)。
 - 方法细节默认收起，点击后展开。
 - 不生成独立 Figure Index 缩略图画廊。
 - 不添加 READ · CLICK · UNDERSTAND、侧边栏宣传语、阅读教程或重复免责声明。

@@ -41,6 +41,20 @@ def main():
         assert "figure-index" not in html.lower()
         assert "sidebar-foot" not in html
         assert "explicit panels=0" in result.stdout
+        assert 'data-term="demo.h_i"' in html
+
+        # A broken symbol reference should fail during the build.
+        method = base["nodes"][0]["branches"][0]["items"][0]
+        formula = method["parameters"]
+        method["parameters"] = [{"text": "hᵢ", "term": "missing.h_i"}]
+        whole.write_text(json.dumps(base, ensure_ascii=False), encoding="utf-8")
+        result = run_build(whole, output, expect_success=False)
+        assert "unknown term 'missing.h_i'" in result.stderr
+        method["parameters"] = "Legacy equation: h_i = W x_i"
+        whole.write_text(json.dumps(base, ensure_ascii=False), encoding="utf-8")
+        run_build(whole, output)
+        assert method["parameters"] in output.read_text(encoding="utf-8")
+        method["parameters"] = formula
 
         # Only explicitly confirmed lettered panels are accepted.
         panel_data = json.loads(json.dumps(base))
@@ -65,7 +79,7 @@ def main():
         invalid_json.write_text(json.dumps(panel_data, ensure_ascii=False), encoding="utf-8")
         run_build(invalid_json, tmp / "invalid.html", expect_success=False)
 
-    print("PASS: whole figures, explicitly labeled panels, and invalid-panel rejection.")
+    print("PASS: figure panels, formula links, missing references, and legacy formula text.")
 
 if __name__ == "__main__":
     main()

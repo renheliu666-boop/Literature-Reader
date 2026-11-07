@@ -32,9 +32,13 @@ def normalize_term(key, value):
     aliases = value.get("aliases", [])
     if not isinstance(aliases, list) or not all(isinstance(x, str) for x in aliases):
         raise ValueError(f"term {key}: aliases must be an array of strings")
+    formula_only = value.get("formula_only", False)
+    if not isinstance(formula_only, bool):
+        raise ValueError(f"term {key}: formula_only must be a boolean")
     return {"full_name":str(value.get("full_name","")),"chinese_name":str(value.get("chinese_name","")),
             "definition":str(value.get("definition","")),"analogy":str(value.get("analogy","")),
-            "role":str(value.get("role","")),"source":str(value.get("source","")),"aliases":aliases}
+            "role":str(value.get("role","")),"source":str(value.get("source","")),"aliases":aliases,
+            **({"formula_only": True} if formula_only else {})}
 
 def validate_reviewer_view(view):
     if view is None: return
@@ -93,11 +97,40 @@ def validate_data(data):
             for key in ("title","purpose","how","result","significance","limit","source"):
                 if key not in panel: raise ValueError(f"figure {fid}{letter}: missing {key}; use empty string if not reported")
 
-def render_method(item):
+def render_formula(parts, terms, method_name):
+    output = []
+    for index, part in enumerate(parts, 1):
+        if isinstance(part, str):
+            output.append(escape(part))
+            continue
+        label = f"method {method_name}, parameters part {index}"
+        if not isinstance(part, dict) or not isinstance(part.get("text"), str) or not part["text"].strip():
+            raise ValueError(f"{label}: expected plain text or an object with nonempty text and a term key")
+        key = part.get("term")
+        if not isinstance(key, str) or key not in terms:
+            raise ValueError(f"{label}: unknown term {key!r}")
+        output.append(
+            f'<button class="term-link formula-symbol" type="button" data-term="{escape(key)}" '
+            f'aria-haspopup="dialog" aria-expanded="false">{escape(part["text"])}</button>'
+        )
+    return '<span class="formula-text">' + "".join(output) + '</span>'
+
+
+def render_method(item, terms):
     h=lambda x:escape(str(x if x is not None else ""),quote=True)
     fields=[("输入对象","input"),("执行步骤","steps"),("关键参数/公式","parameters"),
             ("技术差异","difference"),("局限与边界","limit"),("原文定位","source")]
-    rows="".join(f'<div class="drow"><strong>{h(label)}</strong><span>{h(item.get(key,""))}</span></div>' for label,key in fields if item.get(key))
+    rows = []
+    for label, key in fields:
+        value = item.get(key)
+        if not value:
+            continue
+        if key == "parameters" and isinstance(value, list):
+            content = render_formula(value, terms, item["name"])
+        else:
+            content = f'<span>{h(value)}</span>'
+        rows.append(f'<div class="drow"><strong>{h(label)}</strong>{content}</div>')
+    rows = "".join(rows)
     detail=(f'<button class="details-btn" type="button" aria-expanded="false">查看方法细节</button><div class="details" hidden>{rows}</div>') if rows else ""
     return f'<div class="method"><div class="role">{h(item.get("role",""))}</div><h4>{h(item["name"])}</h4><p class="core">{h(item["core"])}</p><p class="effect">作用：{h(item["effect"])}</p>{detail}</div>'
 
@@ -117,6 +150,7 @@ def render_reviewer_view(view):
 
 def render_main(data):
     h=lambda x:escape(str(x if x is not None else ""),quote=True)
+    terms=data.get("terms",{})
     heading=data["heading"];out=["<main><header>"]
     if len(heading)>1:out.append(f'<div class="head-cn">{h(heading[0])}</div><h1>{h(heading[1])}</h1>')
     else:out.append(f'<h1>{h(heading[0])}</h1>')
@@ -139,7 +173,7 @@ def render_main(data):
             if branch.get("label"):out.append(f'<span class="branchtag">{h(branch["label"])}</span>')
             out.append('</div>')
             if branch.get("goal"):out.append(f'<p class="branchgoal">{h(branch["goal"])}</p>')
-            out.extend(render_method(x) for x in branch.get("items",[]));out.append('</article>')
+            out.extend(render_method(x,terms) for x in branch.get("items",[]));out.append('</article>')
         out.append('</div>')
         refs=list(node.get("figures",[]))
         if node.get("figure"):refs.append(node["figure"])

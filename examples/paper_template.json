@@ -41,7 +41,18 @@
               "role": "该方法在证据链中的作用",
               "input": "真实输入数据和条件",
               "steps": "原文报告的步骤与关键参数",
-              "parameters": "关键公式、参数或单位",
+              "parameters": [
+                "符号交互示例  ",
+                {"text": "hᵢ", "term": "demo.h_i"},
+                " = ",
+                {"text": "σ", "term": "demo.sigma"},
+                "(",
+                {"text": "W", "term": "demo.W"},
+                {"text": "xᵢ", "term": "demo.x_i"},
+                " + ",
+                {"text": "b", "term": "demo.b"},
+                ")"
+              ],
               "difference": "与基线/其他方法的真实差异",
               "limit": "适用边界和局限",
               "source": "原文页码、章节、图表"
@@ -54,6 +65,39 @@
     }
   ],
   "terms": {
+    "demo.h_i": {
+      "formula_only": true,
+      "definition": "第 i 个样本的输出特征向量。",
+      "role": "保存线性变换后经过激活函数得到的结果。",
+      "source": "示例公式"
+    },
+    "demo.sigma": {
+      "formula_only": true,
+      "chinese_name": "激活函数",
+      "definition": "对输入向量逐元素应用的非线性函数。",
+      "role": "让该层能表示非线性关系。",
+      "source": "示例公式"
+    },
+    "demo.W": {
+      "formula_only": true,
+      "chinese_name": "权重矩阵",
+      "definition": "把输入特征映射到输出维度的可学习矩阵。",
+      "role": "决定各输入特征对输出的贡献。",
+      "source": "示例公式"
+    },
+    "demo.x_i": {
+      "formula_only": true,
+      "definition": "第 i 个样本的输入特征向量。",
+      "role": "为该层提供待变换的输入。",
+      "source": "示例公式"
+    },
+    "demo.b": {
+      "formula_only": true,
+      "chinese_name": "偏置向量",
+      "definition": "加到线性变换结果上的可学习向量。",
+      "role": "允许在输入为零时仍有非零的激活前输出。",
+      "source": "示例公式"
+    },
     "ExampleTerm": {
       "full_name": "Example Full Name",
       "chinese_name": "示例中文术语",
