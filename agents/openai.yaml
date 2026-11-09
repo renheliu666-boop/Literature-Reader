@@ -1,0 +1,4 @@
+interface:
+  display_name: "论文精读 · V6"
+  short_description: "沿用深蓝精读版式，把论文问题、公式、原图和实验证据做成离线阅读器"
+  default_prompt: "用 $paper-deep-reader 详细分析附件论文，沿用我的 V6 排版与配色生成离线 HTML。"

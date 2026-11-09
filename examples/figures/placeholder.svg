@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="960" height="420" viewBox="0 0 960 420">
-<rect width="960" height="420" fill="#f2f6fa"/>
-<text x="480" y="55" text-anchor="middle" font-family="Arial,sans-serif" font-size="26" fill="#17334a">PLACEHOLDER FIGURE — REPLACE WITH THE PAPER'S ORIGINAL FIGURE</text>
-<rect x="110" y="120" width="740" height="190" rx="18" fill="#dceaf2" stroke="#5e94ad" stroke-width="3"/>
-<path d="M180 250 L340 180 L500 230 L660 150 L790 210" fill="none" stroke="#2584a3" stroke-width="8"/>
-<g fill="#2584a3"><circle cx="180" cy="250" r="10"/><circle cx="340" cy="180" r="10"/><circle cx="500" cy="230" r="10"/><circle cx="660" cy="150" r="10"/><circle cx="790" cy="210" r="10"/></g>
-<text x="480" y="365" text-anchor="middle" font-family="Arial,sans-serif" font-size="20" fill="#425c70">This is a layout test image, not a research result.</text>
-</svg>

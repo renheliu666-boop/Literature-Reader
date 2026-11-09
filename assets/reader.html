@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>@@TITLE@@｜交互式文献精读</title>
+<style>@@CSS@@</style>
+</head>
+<body>
+<a class="skip" href="#main">跳到正文</a>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand"><div class="brand-mark" aria-hidden="true">⟡</div><div><b>@@BRAND@@</b><small>INTERACTIVE PAPER NOTES</small></div></div>
+    <div class="nav-label">READING MAP</div>
+    <nav class="nav" aria-label="阅读导航">@@NAV@@</nav>
+  </aside>
+  <main id="main">@@CONTENT@@</main>
+</div>
+<div id="term-popover" class="term-popover" role="dialog" aria-label="术语解释">
+  <div class="term-popover-top"><span class="eyebrow">术语解释</span><button id="term-close" class="term-popover-close" type="button" aria-label="关闭术语">×</button></div>
+  <div id="term-body" class="term-popover-body"></div>
+</div>
+<dialog id="figure-dialog" class="figure-dialog modal-box" aria-labelledby="figure-title">
+  <div class="modal-top">
+    <div><h3 id="figure-title"></h3><p id="figure-source"></p></div>
+    <button id="figure-close" type="button" class="close-btn" aria-label="关闭原图">×</button>
+  </div>
+  <div class="figure-modal-content">
+    <div class="figure-stage"><img id="figure-image" class="original-figure" alt=""><div id="figure-hotspots" class="figure-hotspots"></div></div>
+    <p id="figure-desc" class="figure-desc"></p>
+    <div id="panel-buttons" class="subpart-grid" aria-label="原图子图"></div>
+    <section id="panel-card" class="panel-card" hidden aria-labelledby="panel-title">
+      <div class="panel-head"><h4 id="panel-title"></h4><button id="panel-close" type="button" class="close-btn" aria-label="关闭子图">×</button></div>
+      <img id="panel-image" class="subfigure-pop-image" alt="">
+      <p id="panel-desc"></p>
+    </section>
+  </div>
+</dialog>
+<script id="reader-data" type="application/json">@@DATA@@</script>
+<script>@@JS@@</script>
+</body>
+</html>
